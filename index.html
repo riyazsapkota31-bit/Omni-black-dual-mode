@@ -10,7 +10,6 @@
         body { font-family: 'Inter', sans-serif; background-color: #000; color: #fff; overflow-x: hidden; }
         .active-ring { border: 2px solid #00f2ff !important; box-shadow: 0 0 15px rgba(0, 242, 255, 0.3); }
         .glow-text { text-shadow: 0 0 10px rgba(0, 242, 255, 0.5); }
-        .hide-scroll::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="p-6">
@@ -31,29 +30,29 @@
     </div>
 
     <div class="grid grid-cols-2 gap-4 mb-8">
-        <div id="box0" onclick="ui.trigger(0)" class="aspect-square rounded-[40px] border-2 border-dashed border-cyan-500/20 flex flex-col items-center justify-center bg-white/5 relative overflow-hidden">
+        <div id="box0" onclick="ui.trigger(0)" class="aspect-square rounded-[40px] border-2 border-dashed border-cyan-500/20 flex flex-col items-center justify-center bg-white/5 relative">
             <input type="file" id="f0" class="hidden" accept="image/*" onchange="engine.stage(0)">
-            <span id="l0" class="text-[10px] font-900 text-cyan-400/40 uppercase tracking-widest">HTF Bias</span>
+            <span id="l0" class="text-[10px] font-900 text-cyan-400/40 uppercase tracking-widest text-center px-4">HTF Bias</span>
             <span id="ok0" class="hidden text-cyan-400">✓</span>
         </div>
-        <div id="box1" onclick="ui.trigger(1)" class="aspect-square rounded-[40px] border-2 border-dashed border-cyan-500/20 flex flex-col items-center justify-center bg-white/5 relative overflow-hidden">
+        <div id="box1" onclick="ui.trigger(1)" class="aspect-square rounded-[40px] border-2 border-dashed border-cyan-500/20 flex flex-col items-center justify-center bg-white/5 relative">
             <input type="file" id="f1" class="hidden" accept="image/*" onchange="engine.stage(1)">
-            <span id="l1" class="text-[10px] font-900 text-cyan-400/40 uppercase tracking-widest">M15 Structure</span>
+            <span id="l1" class="text-[10px] font-900 text-cyan-400/40 uppercase tracking-widest text-center px-4">M15 Structure</span>
             <span id="ok1" class="hidden text-cyan-400">✓</span>
         </div>
-        <div id="box2" onclick="ui.trigger(2)" class="aspect-square rounded-[40px] border-2 border-dashed border-cyan-500/20 flex flex-col items-center justify-center bg-white/5 relative overflow-hidden">
+        <div id="box2" onclick="ui.trigger(2)" class="aspect-square rounded-[40px] border-2 border-dashed border-cyan-500/20 flex flex-col items-center justify-center bg-white/5 relative">
             <input type="file" id="f2" class="hidden" accept="image/*" onchange="engine.stage(2)">
-            <span id="l2" class="text-[10px] font-900 text-cyan-400/40 uppercase tracking-widest">Trigger</span>
+            <span id="l2" class="text-[10px] font-900 text-cyan-400/40 uppercase tracking-widest text-center px-4">Trigger</span>
             <span id="ok2" class="hidden text-cyan-400">✓</span>
         </div>
-        <div id="box3" onclick="ui.trigger(3)" class="aspect-square rounded-[40px] border-2 border-dashed border-cyan-500/20 flex flex-col items-center justify-center bg-white/5 relative overflow-hidden">
+        <div id="box3" onclick="ui.trigger(3)" class="aspect-square rounded-[40px] border-2 border-dashed border-cyan-500/20 flex flex-col items-center justify-center bg-white/5 relative">
             <input type="file" id="f3" class="hidden" accept="image/*" onchange="engine.stage(3)">
-            <span id="l3" class="text-[10px] font-900 text-cyan-400/40 uppercase tracking-widest">DXY/News</span>
+            <span id="l3" class="text-[10px] font-900 text-cyan-400/40 uppercase tracking-widest text-center px-4">DXY/News</span>
             <span id="ok3" class="hidden text-cyan-400">✓</span>
         </div>
     </div>
 
-    <button id="igniteBtn" onclick="engine.ignite()" class="w-full py-6 rounded-[35px] bg-white text-black font-900 text-[11px] uppercase tracking-[0.3em] shadow-[0_0_30px_rgba(255,255,255,0.2)] active:scale-95 transition-transform">
+    <button id="igniteBtn" onclick="engine.ignite()" class="w-full py-6 rounded-[35px] bg-white text-black font-900 text-[11px] uppercase tracking-[0.3em] active:scale-95 transition-transform">
         Execute Command
     </button>
 
@@ -67,7 +66,7 @@
         <button onclick="ui.save()" class="w-full py-4 bg-cyan-500 text-black font-900 rounded-2xl uppercase text-[10px]">Save & Lock</button>
     </div>
 
-    <div id="result-screen" class="fixed inset-0 bg-black z-[60] p-6 hidden overflow-y-auto hide-scroll">
+    <div id="result-screen" class="fixed inset-0 bg-black z-[60] p-6 hidden overflow-y-auto">
         <button onclick="document.getElementById('result-screen').classList.add('hidden')" class="mb-8 p-3 bg-white/10 rounded-2xl uppercase text-[8px] font-900 tracking-widest">← Back</button>
         
         <div class="text-center mb-10">
