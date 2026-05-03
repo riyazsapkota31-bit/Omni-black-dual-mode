@@ -1,4 +1,4 @@
-/** * OMNI—BLACK V62.6 | SMART CORRELATION & OPTIONAL DXY PATCH
+/** * OMNI—BLACK V62.6 | INSTITUTIONAL RR LOCK 
  */
 var files = [null, null, null, null];
 const ASSET_SPECS = { CRYPTO: { lotDivisor: 1 }, FOREX: { lotDivisor: 10 }, COMMODITY: { lotDivisor: 100 } };
@@ -8,9 +8,7 @@ async function executeSurgicalScan() {
     const out = document.getElementById('outPanel');
     const isDay = document.getElementById('mode-input').checked;
     
-    // Only boxes 0, 1, and 2 (Target Asset) are strictly checked for the minimum 2-chart rule
-    const targetCharts = [files[0], files[1], files[2]].filter(f => f).length;
-    if (targetCharts < 1) return alert("Upload at least the 15M or 1M chart of your Target Asset.");
+    if (files.filter(f => f).length < 1) return alert("Upload charts to begin.");
     
     setButtonState(btn, true, isDay ? "QUANT ANALYSING..." : "SCALP TRIGGERING...");
 
@@ -54,23 +52,31 @@ async function compressAndEncode(file) {
 
 async function fetchNeuralSignal(key, images, isDay) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
-    
-    const inlineData = images.map((data, index) => {
-        if (!data) return null;
-        return { inline_data: { mime_type: "image/jpeg", data: data.split(',')[1] } };
-    }).filter(Boolean);
+    const inlineData = images.map(data => data ? { inline_data: { mime_type: "image/jpeg", data: data.split(',')[1] } } : null).filter(Boolean);
 
-    // Prompt updated: DXY is now OPTIONAL and never the tradeable asset
+    // Prompt updated for your 1:2+ Scalping and 1:4-1:8+ Day Trading standards
     const prompt = `[SYSTEM: OMNI-BLACK V62.6 NEURAL TERMINAL]
-    TASK: ANALYSE TARGET ASSET PIXELS.
+    TASK: ANALYSE TARGET ASSET PIXELS FOR HIGH-RR SETUPS.
     
-    1. TARGET IDENTIFICATION: Boxes 1-3 contain the TARGET ASSET (e.g. BTC, SOL). 
-    2. OPTIONAL DXY: Box 4 may contain DXY. If present, use it ONLY to confirm directional bias for the Target Asset (DXY Strength = Target Asset Weakness). 
-    3. ZERO DXY TRADING: Never provide Entry/SL/TP for DXY. All price levels MUST come from the Target Asset charts.
-    4. FALLBACK: If Box 4 is empty, ignore DXY correlation and provide a pure Technical Analysis setup for the Target Asset.
-    
-    MODE: ${isDay ? 'SURGICAL DAY' : 'AGGRESSIVE SCALP'}.
-    RETURN JSON ONLY: {"bias":"BUY|SELL|WATCHING", "ticker":"TARGET_TICKER", "entry":number, "sl":number, "tp":number, "logic":"string", "conf":1-8, "assetType":"CRYPTO|FOREX"}`;
+    MODE: ${isDay ? 'SURGICAL DAY TRADING' : 'AGGRESSIVE SCALPING'}.
+
+    STRICT STRATEGIC RULES:
+    1. IF AGGRESSIVE SCALPING (1M/15M):
+       - RR FLOOR: 1:2.0. The engine must aim for 1:2.0 and above.
+       - INVALIDATION: Stop Loss must be extremely tight, placed at the technical failure point of the 1M structure.
+       - TARGET: Next high-probability liquidity sweep or structural retest.
+
+    2. IF SURGICAL DAY TRADING (1H/15M):
+       - RR FLOOR: 1:4.0. TARGET RANGE: 1:4.0 to 1:8.0+.
+       - LOGIC: Must align with HTF institutional bias. Stop Loss must be placed behind 1H swing points.
+       - TARGET: Major structural expansions or daily draws on liquidity.
+
+    MANDATORY:
+    - If market structure does NOT allow for the minimum RR (1:2 for Scalp, 1:4 for Day), return "WATCHING".
+    - Entry, SL, and TP must be extracted from the Target Asset charts (Boxes 1-3).
+    - DXY (Box 4) is for confluence ONLY. Never provide DXY levels.
+
+    RETURN JSON ONLY: {"bias":"BUY|SELL|WATCHING", "ticker":"STR", "entry":number, "sl":number, "tp":number, "logic":"string", "conf":1-8, "assetType":"CRYPTO|FOREX"}`;
 
     const response = await fetch(url, {
         method: 'POST',
@@ -83,7 +89,6 @@ async function fetchNeuralSignal(key, images, isDay) {
 
     const result = await response.json();
     if (!result.candidates?.[0]) throw new Error("Neural Link Timeout.");
-
     let rawText = result.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim();
     return JSON.parse(rawText);
 }
@@ -91,7 +96,7 @@ async function fetchNeuralSignal(key, images, isDay) {
 function renderOutput(data, isDay) {
     const num = (v) => {
         const val = parseFloat(v);
-        return isNaN(val) ? '--' : val.toFixed(4);
+        return isNaN(val) ? '--' : val.toFixed(2);
     };
     
     document.getElementById('biasTxt').innerText = data.bias || 'WATCHING';
@@ -102,7 +107,8 @@ function renderOutput(data, isDay) {
     document.getElementById('tpVal').innerText = num(data.tp);
 
     const risk = Math.abs(parseFloat(data.entry) - parseFloat(data.sl)) || 0;
-    const rr = risk > 0 ? (Math.abs(parseFloat(data.tp) - parseFloat(data.entry)) / risk).toFixed(1) : '0.0';
+    const reward = Math.abs(parseFloat(data.tp) - parseFloat(data.entry)) || 0;
+    const rr = risk > 0 ? (reward / risk).toFixed(1) : '0.0';
 
     document.getElementById('logicSummary').innerHTML = `
         <div class="flex gap-2 mb-3">
@@ -110,7 +116,7 @@ function renderOutput(data, isDay) {
             <span class="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-[9px] font-black uppercase">${data.conf || 0}/8 CONF</span>
             <span class="bg-white/10 px-3 py-1 rounded-full text-[9px] font-black uppercase">${data.ticker || 'N/A'}</span>
         </div>
-        <p class="text-white/80 font-bold uppercase text-[11px] leading-tight">${data.logic || 'Waiting for structural alignment.'}</p>
+        <p class="text-white/80 font-bold uppercase text-[11px] leading-tight">${data.logic || 'Analysing structural confluence.'}</p>
     `;
 
     const bal = parseFloat(localStorage.getItem('omni_bIn')) || 0;
