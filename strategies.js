@@ -1,11 +1,18 @@
-/** OMNI—BLACK SOVEREIGN V73.0
- * CORE: 15-WORD CONSTRAINT + IMAGE COMPRESSION
+/** * OMNI—BLACK SOVEREIGN V73.0 
+ * CORE: 15-WORD CONSTRAINT + SURGICAL COMPRESSION 
  */
-const state = { mode: 'scalp', payloads: [null, null, null, null], isSyncing: false };
+
+const state = { 
+    mode: 'scalp', 
+    payloads: [null, null, null, null], 
+    isSyncing: false 
+};
 
 const ui = {
     toggleSettings: () => document.getElementById('settings').classList.toggle('hidden'),
+    
     trigger: (i) => document.getElementById(`f${i}`).click(),
+    
     save: () => {
         localStorage.setItem('ob_k', document.getElementById('key').value);
         localStorage.setItem('ob_b', document.getElementById('bal').value);
@@ -30,7 +37,7 @@ const engine = {
             document.getElementById(`l${i}`).classList.add('hidden');
             document.getElementById(`ok${i}`).classList.remove('hidden');
             document.getElementById(`box${i}`).classList.add('active-ring');
-            // COMPRESSION: Critical for preventing "ENGINE TIMEOUT"
+            // COMPRESSION: Prevents "ENGINE TIMEOUT" on mobile networks
             state.payloads[i] = await engine.compress(file);
         }
     },
@@ -44,10 +51,14 @@ const engine = {
                 img.src = e.target.result;
                 img.onload = () => {
                     const c = document.createElement('canvas');
-                    const scale = 1024 / img.width;
-                    c.width = 1024; c.height = img.height * scale;
                     const ctx = c.getContext('2d');
-                    ctx.drawImage(img, 0, 0, c.width, c.height);
+                    // Resize for low-latency transmission while keeping TA details clear
+                    const max = 1024;
+                    let w = img.width, h = img.height;
+                    if (w > h) { if (w > max) { h *= max / w; w = max; } }
+                    else { if (h > max) { w *= max / h; h = max; } }
+                    c.width = w; c.height = h;
+                    ctx.drawImage(img, 0, 0, w, h);
                     res(c.toDataURL('image/jpeg', 0.6).split(',')[1]);
                 };
             };
@@ -62,36 +73,60 @@ const engine = {
         const btn = document.getElementById('igniteBtn');
         btn.innerText = "VERIFYING CONFLUENCE...";
 
-        const prompt = `ACT AS OMNI-BLACK CORE. MODE: ${state.mode.toUpperCase()}. CAPITAL: $${b} RISK: ${r}%. Analyze 4-chart confluence (SMC/ICT). 
-        STRICT MANDATE: Logic field MUST be 15 words or fewer. 
-        JSON ONLY: {"asset":"SYM","bias":"BUY/SELL/WATCHING","entry":"VAL","sl":"VAL","tp":"VAL","lots":"VAL","logic":"Max 15 words"}`;
+        // STRICT MANDATE: Forcing 15-word logic limit in system prompt
+        const prompt = `ACT AS OMNI-BLACK CORE. MODE: ${state.mode.toUpperCase()}. CAPITAL: $${b} RISK: ${r}%. 
+            Analyze 4-chart confluence for SMC/ICT (Liquidity, Displacement, FVG). 
+            STRICT MANDATE: 'logic' field MUST NOT exceed 15 words. 
+            JSON ONLY: {"asset":"SYM","bias":"BUY/SELL/WATCHING","entry":"VAL","sl":"VAL","tp":"VAL","lots":"VAL","logic":"15-word max logic"}`;
 
         try {
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${k}`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }, ...state.payloads.filter(p => p).map(d => ({ inline_data: { mime_type: "image/jpeg", data: d } }))] }] })
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [
+                            { text: prompt },
+                            ...state.payloads.filter(p => p).map(d => ({ inline_data: { mime_type: "image/jpeg", data: d } }))
+                        ]
+                    }]
+                })
             });
 
             const data = await response.json();
-            const res = JSON.parse(data.candidates[0].content.parts[0].text.replace(/```json|```/g, ''));
+            if (data.error) throw new Error(data.error.message);
 
-            // UI MAPPING
+            const result = JSON.parse(data.candidates[0].content.parts[0].text.replace(/```json|```/g, ''));
+
+            // UI MAPPING: Mirroring the Surgical Day Trade Engine layout
             const biasEl = document.getElementById('res-bias');
-            biasEl.innerText = res.bias;
-            biasEl.className = `text-[110px] font-900 italic leading-none tracking-tighter uppercase ${res.bias === 'BUY' ? 'text-emerald-400' : res.bias === 'SELL' ? 'text-red-500' : 'text-white/20'}`;
+            biasEl.innerText = result.bias;
             
-            document.getElementById('res-entry').innerText = res.entry;
-            document.getElementById('res-sl').innerText = res.sl;
-            document.getElementById('res-tp').innerText = res.tp;
-            document.getElementById('res-lot').innerText = res.lots;
-            document.getElementById('res-asset').innerText = res.asset;
-            document.getElementById('res-logic').innerText = res.logic;
+            // Color Logic: Emerald for BUY, Red for SELL, White/Opacity for WATCHING
+            biasEl.className = `text-[110px] font-900 italic leading-none tracking-tighter uppercase ${
+                result.bias === 'BUY' ? 'text-emerald-400' : result.bias === 'SELL' ? 'text-red-500' : 'text-white/20'
+            }`;
+
+            document.getElementById('res-entry').innerText = result.entry;
+            document.getElementById('res-sl').innerText = result.sl;
+            document.getElementById('res-tp').innerText = result.tp;
+            document.getElementById('res-lot').innerText = result.lots;
+            document.getElementById('res-asset').innerText = result.asset;
+            document.getElementById('res-logic').innerText = result.logic;
+            
             document.getElementById('result-screen').classList.remove('hidden');
-        } catch (e) { alert("SYNC ERROR: CHECK KEY/CONNECTION"); } finally { state.isSyncing = false; btn.innerText = "Execute Signal"; }
+
+        } catch (err) {
+            console.error("Critical Sync Error:", err);
+            alert("SYNC ERROR: Check API Key or Connection Quality");
+        } finally {
+            state.isSyncing = false;
+            btn.innerText = "Execute Signal";
+        }
     }
 };
 
+// Initial Load Sync
 window.onload = () => {
     if(localStorage.getItem('ob_k')) {
         document.getElementById('key').value = localStorage.getItem('ob_k');
