@@ -2,59 +2,87 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OMNI-BLACK V62.0 | DUAL-MODE</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>OMNI—BLACK DUAL | V62.0 MASTER</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --cyan: #00f2ff; --blue-glow: rgba(0, 242, 255, 0.3); }
+        body { background: radial-gradient(circle at 50% 10%, #0d1117 0%, #000 100%); color: #fff; font-family: 'Inter', sans-serif; padding: 20px; min-height: 100vh; overflow-x: hidden; }
+        .logo-text { font-size: 2.6rem; font-weight: 900; font-style: italic; letter-spacing: -0.04em; -webkit-text-stroke: 1.5px var(--cyan); text-shadow: 0 0 10px var(--blue-glow); }
+        .upload-card { height: 110px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 24px; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.06); transition: 0.4s; cursor: pointer; }
+        .has-file { border: 1px solid var(--cyan) !important; background: rgba(0, 242, 255, 0.04) !important; box-shadow: 0 0 15px rgba(0, 242, 255, 0.15); }
+        .btn-main { background: #fff; color: #000; font-weight: 900; text-transform: uppercase; letter-spacing: 0.4em; padding: 22px; border-radius: 20px; width: 100%; margin-top: 25px; transition: 0.3s; }
+        .stat-box { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 18px; text-align: center; }
+        .mode-switch-container { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 15px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .toggle-btn { position: relative; width: 60px; height: 30px; background: #222; border-radius: 15px; cursor: pointer; }
+        .toggle-btn::after { content: ''; position: absolute; width: 22px; height: 22px; background: #fff; border-radius: 50%; top: 4px; left: 4px; transition: 0.3s; }
+        #mode-input:checked + .toggle-btn { background: var(--cyan); }
+        #mode-input:checked + .toggle-btn::after { left: 34px; background: #000; }
+    </style>
 </head>
-<body class="terminal-dark">
-    <div id="vision-shield-overlay"></div>
+<body>
+    <header class="flex justify-between items-center mb-8 pt-4 px-2">
+        <div><h1 class="logo-text">OMNI—DUAL</h1><p class="text-[9px] font-black tracking-[0.4em] text-cyan-400 opacity-40 uppercase ml-1">V62.0 Dual-Engine Active</p></div>
+        <button onclick="toggleSettings()" class="bg-white/5 border border-white/10 w-12 h-12 rounded-xl text-cyan-400"><i class="fa-solid fa-sliders"></i></button>
+    </header>
 
-    <div class="main-container">
-        <header class="v62-header">
-            <div class="engine-id">8-CORE V62.0</div>
-            <div class="mode-control">
-                <span class="mode-label">SCALP</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="mode-toggle">
-                    <span class="slider"></span>
-                </label>
-                <span class="mode-label">DAY TRADE</span>
-            </div>
-        </header>
-
-        <div class="signal-core">
-            <div id="engine-state" class="state-indicator">SCOUTING POI</div>
-            <h1 id="signal-header">WAITING...</h1>
-        </div>
-
-        <div class="params-grid">
-            <div class="param-card">
-                <label>ENTRY</label>
-                <span id="entry-price" class="val-blue">0.00</span>
-            </div>
-            <div class="param-card">
-                <label>AUTO-LOT</label>
-                <span id="lot-size" class="val-blue">0.000</span>
-            </div>
-            <div class="param-card">
-                <label>STOP LOSS</label>
-                <span id="sl-price" class="val-red">0.00</span>
-            </div>
-            <div class="param-card">
-                <label>TARGET</label>
-                <span id="tp-price" class="val-green">0.00</span>
-            </div>
-        </div>
-
-        <div class="analysis-footer">
-            <div class="badge-row">
-                <span id="rr-badge" class="badge">RR 1:2.5</span>
-                <span id="conf-badge" class="badge">0/8 CONF</span>
-            </div>
-            <p id="narrative-output">Initializing Surgical Detection Pass...</p>
-        </div>
+    <div class="mode-switch-container">
+        <span id="label-scalp" class="text-[11px] font-black tracking-widest uppercase text-cyan-400">Scalp Mode</span>
+        <label class="relative inline-block">
+            <input type="checkbox" id="mode-input" class="hidden" onchange="updateModeVisuals()">
+            <div class="toggle-btn"></div>
+        </label>
+        <span id="label-day" class="text-[11px] font-black tracking-widest uppercase opacity-40">Day Trade</span>
     </div>
 
-    <script src="script.js"></script>
+    <div class="grid grid-cols-2 gap-4">
+        <div id="box0" class="upload-card" onclick="document.getElementById('i0').click()"><input type="file" id="i0" hidden accept="image/*" onchange="sync(0)"><i class="fa-solid fa-compass opacity-20 text-2xl mb-2"></i><p class="text-[10px] font-bold opacity-30 uppercase tracking-widest">1H Bias</p></div>
+        <div id="box1" class="upload-card" onclick="document.getElementById('i1').click()"><input type="file" id="i1" hidden accept="image/*" onchange="sync(1)"><i class="fa-solid fa-microscope opacity-20 text-2xl mb-2"></i><p class="text-[10px] font-bold opacity-30 uppercase tracking-widest">15M Struct</p></div>
+        <div id="box2" class="upload-card" onclick="document.getElementById('i2').click()"><input type="file" id="i2" hidden accept="image/*" onchange="sync(2)"><i class="fa-solid fa-crosshairs opacity-20 text-2xl mb-2"></i><p class="text-[10px] font-bold opacity-30 uppercase tracking-widest">1M Trigger</p></div>
+        <div id="box3" class="upload-card" onclick="document.getElementById('i3').click()"><input type="file" id="i3" hidden accept="image/*" onchange="sync(3)"><i class="fa-solid fa-globe opacity-20 text-2xl mb-2"></i><p class="text-[10px] font-bold opacity-30 uppercase tracking-widest">DXY Data</p></div>
+    </div>
+
+    <button id="goBtn" onclick="executeSurgicalScan()" class="btn-main">Execute Command</button>
+
+    <div id="outPanel" class="hidden mt-10 pb-32 space-y-4">
+        <div class="text-center py-6">
+            <h2 id="biasTxt" class="text-8xl font-black italic tracking-tighter">--</h2>
+            <p id="modeTypeLabel" class="text-[10px] font-black tracking-[0.5em] uppercase text-white/20 mt-2">Aggressive Scalp Logic</p>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="stat-box"><p class="text-[10px] font-bold opacity-30 uppercase mb-1">Entry</p><p id="entVal" class="text-2xl font-bold font-mono">--</p></div>
+            <div class="stat-box border-cyan-500/20"><p class="text-[10px] font-bold text-cyan-400 uppercase mb-1">Lot Size</p><p id="lotVal" class="text-2xl font-bold font-mono text-cyan-400">--</p></div>
+            <div class="stat-box border-rose-500/20"><p class="text-[10px] font-bold text-rose-500 uppercase mb-1">Stop Loss</p><p id="slVal" class="text-2xl font-bold font-mono text-rose-500">--</p></div>
+            <div class="stat-box border-emerald-500/20"><p class="text-[10px] font-bold text-emerald-400 uppercase mb-1">Take Profit</p><p id="tpVal" class="text-2xl font-bold font-mono text-emerald-400">--</p></div>
+        </div>
+        <div id="logicSummary" class="p-6 rounded-3xl border border-white/5 bg-white/[0.01] text-[11px] leading-relaxed text-slate-400 uppercase font-medium">Waiting...</div>
+    </div>
+
+    <div id="settingsModal" class="fixed inset-0 bg-black/95 z-50 hidden flex-col items-center justify-center p-8">
+        <form onsubmit="saveConfig(event)" class="w-full max-w-sm space-y-4">
+            <h3 class="text-center font-black italic mb-6 text-white text-xl uppercase tracking-widest">Hardware Link</h3>
+            <input type="password" id="kIn" placeholder="API KEY" class="bg-white/5 border border-white/10 rounded-2xl w-full p-5 text-sm outline-none text-cyan-400 font-mono">
+            <div class="grid grid-cols-2 gap-4"><input type="number" id="bIn" step="any" placeholder="BAL"><input type="number" id="rIn" step="any" placeholder="RISK %"></div>
+            <button type="submit" class="btn-main">Sync Core</button>
+            <p class="text-center text-[10px] mt-6 text-slate-600 font-bold uppercase cursor-pointer" onclick="toggleSettings()">Back</p>
+        </form>
+    </div>
+
+    <script src="strategies.js"></script>
+    <script>
+        function updateModeVisuals() {
+            const isDay = document.getElementById('mode-input').checked;
+            document.getElementById('label-scalp').classList.toggle('text-cyan-400', !isDay);
+            document.getElementById('label-scalp').classList.toggle('opacity-40', isDay);
+            document.getElementById('label-day').classList.toggle('text-cyan-400', isDay);
+            document.getElementById('label-day').classList.toggle('opacity-40', !isDay);
+            document.getElementById('modeTypeLabel').innerText = isDay ? "Structural Day Trade Logic" : "Aggressive Scalp Logic";
+        }
+        function toggleSettings() { const m = document.getElementById('settingsModal'); m.classList.toggle('hidden'); m.classList.toggle('flex'); }
+        function sync(i) { const f = document.getElementById(`i${i}`).files[0]; if(f) { document.getElementById(`box${i}`).classList.add('has-file'); files[i] = f; } }
+        window.onload = () => { ['kIn', 'bIn', 'rIn'].forEach(id => { const val = localStorage.getItem('omni_' + id); if(val) document.getElementById(id).value = val; }); };
+        function saveConfig(e) { e.preventDefault(); ['kIn', 'bIn', 'rIn'].forEach(id => localStorage.setItem('omni_' + id, document.getElementById(id).value)); alert("System Synced."); toggleSettings(); }
+    </script>
 </body>
 </html>
