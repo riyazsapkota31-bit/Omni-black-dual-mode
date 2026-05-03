@@ -1,26 +1,16 @@
 /** * OMNI—DUAL | NEURAL CORE V62.6
- * FIX: VERSION MISMATCH & CHART COMPLEXITY
+ * FIX: 400 BAD REQUEST / VERSION MISMATCH
  */
 
-var files = [null, null, null, null];
-
-window.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('apiKeyIn').value = localStorage.getItem('omni_k') || '';
-    document.getElementById('balIn').value = localStorage.getItem('omni_b') || '';
-    document.getElementById('riskIn').value = localStorage.getItem('omni_r') || '';
-});
+let files = [null, null, null, null];
 
 function toggleSettings() { document.getElementById('settingsPanel').classList.toggle('hidden'); }
-
-function saveCore(e) {
+function saveCore() {
     localStorage.setItem('omni_k', document.getElementById('apiKeyIn').value);
-    localStorage.setItem('omni_b', document.getElementById('balIn').value);
-    localStorage.setItem('omni_r', document.getElementById('riskIn').value);
     toggleSettings();
 }
 
 function injectGallery(i) { document.getElementById(`f${i}`).click(); }
-
 function handleFile(i) {
     const input = document.getElementById(`f${i}`);
     if (!input.files[0]) return;
@@ -33,59 +23,80 @@ function handleFile(i) {
 async function runNeuralScan() {
     const btn = document.getElementById('goBtn');
     const key = localStorage.getItem('omni_k');
-    if (!key) return alert("OMNI: KEY REQUIRED.");
+    if (!key) return alert("CORE ERROR: KEY REQUIRED.");
 
     btn.disabled = true;
-    btn.innerText = "PURGING COMPLEXITY...";
+    btn.innerText = "NEURAL HANDSHAKE...";
 
     try {
-        const buffers = await Promise.all(files.map(f => f ? compressChart(f) : Promise.resolve(null)));
-        btn.innerText = "NEURAL HANDSHAKE...";
-        const signal = await fetchNeuralSignal(key, buffers);
-        console.log(signal);
+        // IMAGE PASS: Fixed at 512px to stabilize multimodal payload
+        const buffers = await Promise.all(files.map(f => f ? compress(f) : Promise.resolve(null)));
+        const result = await callNeuralEngine(key, buffers.filter(b => b));
+        displayOutput(result);
     } catch (err) {
+        // Force-lock error message to debugging version reported
         alert("CRITICAL ERROR: API REJECTED. CHECK VERSION.");
+        console.error("OMNI_DEBUG:", err);
     } finally {
         btn.disabled = false;
         btn.innerText = "EXECUTE COMMAND";
     }
 }
 
-async function compressChart(f) {
+async function compress(file) {
     return new Promise((resolve) => {
-        const r = new FileReader();
-        r.readAsDataURL(f);
-        r.onload = (e) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (e) => {
             const img = new Image();
             img.src = e.target.result;
             img.onload = () => {
-                const cv = document.createElement('canvas');
-                // Limit to 480px to avoid Complexity Errors
-                const max = 480; 
-                const scale = max / Math.max(img.width, img.height);
-                cv.width = img.width * scale; cv.height = img.height * scale;
-                const ctx = cv.getContext('2d');
-                ctx.drawImage(img, 0, 0, cv.width, cv.height);
-                resolve(cv.toDataURL('image/jpeg', 0.2)); 
+                const canvas = document.createElement('canvas');
+                const MAX_DIM = 512; 
+                const scale = MAX_DIM / Math.max(img.width, img.height);
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                resolve(canvas.toDataURL('image/jpeg', 0.4).split(',')[1]);
             };
         };
     });
 }
 
-async function fetchNeuralSignal(key, imgs) {
-    // FORCE-LOCK TO SUPPORTED MODEL
+async function callNeuralEngine(key, images) {
+    // UPDATED ENDPOINT: Strictly gemini-2.5-flash as per usage logs
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
     const mode = document.getElementById('stratToggle').checked ? "SURGICAL DAY" : "AGGRESSIVE SCALP";
     
-    const parts = [{ text: `Analyze charts for SMC ${mode}. Output JSON: {"bias":"BUY|SELL", "ticker":"SYM", "entry":0, "sl":0, "tp":0, "logic":"short"}` }];
-    imgs.forEach(i => { if (i) parts.push({ inline_data: { mime_type: "image/jpeg", data: i.split(',')[1] } }); });
+    const parts = [
+        { text: `SMC ANALYSIS: ${mode}. Focus on Market Displacement. Output JSON ONLY: {"bias":"BUY|SELL", "logic":"brief summary"}` }
+    ];
+    
+    images.forEach(img => {
+        parts.push({ inline_data: { mime_type: "image/jpeg", data: img } });
+    });
 
-    const res = await fetch(url, {
+    const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: parts }], generationConfig: { response_mime_type: "application/json" } })
+        body: JSON.stringify({
+            contents: [{ parts: parts }],
+            generationConfig: { response_mime_type: "application/json", temperature: 0.1 }
+        })
     });
-    const json = await res.json();
-    if (!json.candidates) throw new Error("VERSION_MISMATCH");
-    return JSON.parse(json.candidates[0].content.parts[0].text);
+    
+    const data = await response.json();
+    if (!data.candidates) throw new Error("VERSION_MISMATCH_OR_400");
+    return JSON.parse(data.candidates[0].content.parts[0].text);
+}
+
+function displayOutput(data) {
+    const panel = document.getElementById('outPanel');
+    const txt = document.getElementById('biasTxt');
+    panel.classList.remove('hidden');
+    txt.innerText = data.bias;
+    txt.style.color = data.bias === "BUY" ? "#34d399" : "#fb7185";
+    document.getElementById('logicLog').innerText = data.logic;
+    panel.scrollIntoView({ behavior: 'smooth' });
 }
