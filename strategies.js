@@ -1,4 +1,4 @@
-/** * OMNI—BLACK V62.6 | TIMEOUT SUPPRESSION & HIGH-RR LOCK 
+/** * OMNI—BLACK V62.6 | SERIALIZED PAYLOAD & TIMEOUT FIX 
  */
 var files = [null, null, null, null];
 const ASSET_SPECS = { CRYPTO: { lotDivisor: 1 }, FOREX: { lotDivisor: 10 }, COMMODITY: { lotDivisor: 100 } };
@@ -8,7 +8,7 @@ async function executeSurgicalScan() {
     const out = document.getElementById('outPanel');
     const isDay = document.getElementById('mode-input').checked;
     
-    if (files.filter(f => f).length < 1) return alert("Upload charts to begin.");
+    if (files.filter(f => f).length < 1) return alert("Upload at least one chart.");
     
     setButtonState(btn, true, isDay ? "QUANT ANALYSING..." : "SCALP TRIGGERING...");
 
@@ -16,17 +16,18 @@ async function executeSurgicalScan() {
         const apiKey = localStorage.getItem('omni_kIn');
         if (!apiKey) throw new Error("API Key Missing.");
 
-        // Aggressive Scale-Down: 800px max side to prevent payload-related timeouts
-        const compressedImgs = await Promise.all(files.map(f => f ? compressAndEncode(f, 800, 0.5) : Promise.resolve(null)));
+        // Ultra-Fast Compression: Smallest viable footprint for API stability
+        const compressedImgs = await Promise.all(files.map(f => f ? compressAndEncode(f, 800, 0.4) : Promise.resolve(null)));
+        
+        // Timeout Protection: 40-second cutoff for neural reasoning
         const signal = await fetchNeuralSignal(apiKey, compressedImgs, isDay);
         
         renderOutput(signal, isDay);
         out.classList.remove('hidden');
         out.scrollIntoView({ behavior: 'smooth' });
     } catch (err) { 
-        console.error(err);
-        // User-facing error handling for the timeout seen in
-        alert(err.name === 'AbortError' ? "TIMEOUT: API took too long. Try fewer charts." : "CRITICAL ERROR: " + err.message); 
+        console.error("OMNI ERROR:", err);
+        alert(err.message.includes("aborted") ? "TIMEOUT: Server overloaded. Try 2 charts." : "SYSTEM: " + err.message); 
     } finally { 
         setButtonState(btn, false, "EXECUTE COMMAND"); 
     }
@@ -54,41 +55,49 @@ async function compressAndEncode(file, maxDim, quality) {
 
 async function fetchNeuralSignal(key, images, isDay) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`;
-    const inlineData = images.map(data => data ? { inline_data: { mime_type: "image/jpeg", data: data.split(',')[1] } } : null).filter(Boolean);
-
-    const prompt = `[SYSTEM: OMNI-BLACK V62.6 NEURAL TERMINAL]
-    TASK: HIGH-RR STRUCTURAL ANALYSIS.
-    MODE: ${isDay ? 'SURGICAL DAY TRADING' : 'AGGRESSIVE SCALPING'}.
-
-    STRICT RISK PARAMETERS:
-    1. SCALPING (AGGRESSIVE): FLOOR RR 1:2.0+. Aim for the highest possible RR by finding 1M FVG/Liquidity sweep entries.
-    2. DAY TRADING (SURGICAL): RANGE RR 1:4.0 to 1:8.0+. Must align with 1H Institutional Bias and major structural draw on liquidity.
     
-    MANDATORY: 
-    - Provide levels ONLY for the Target Asset found in the first 3 boxes.
-    - Treat Box 4 (DXY) as optional confluence only. 
-    - If market structure does not provide the minimum RR for the selected mode, return "WATCHING".
+    // Formatting parts strictly for Target vs Correlation
+    const parts = images.map((data, i) => {
+        if (!data) return null;
+        return { 
+            text: i === 3 ? "IMAGE_4: DXY_CORRELATION_ONLY" : `IMAGE_${i+1}: TARGET_ASSET_STRUCTURE`,
+            inline_data: { mime_type: "image/jpeg", data: data.split(',')[1] }
+        };
+    }).filter(Boolean);
 
-    RETURN JSON ONLY: {"bias":"BUY|SELL|WATCHING", "ticker":"STR", "entry":number, "sl":number, "tp":number, "logic":"string", "conf":1-8, "assetType":"CRYPTO|FOREX"}`;
+    const prompt = {
+        text: `[SYSTEM: OMNI-BLACK V62.6]
+        MODE: ${isDay ? 'SURGICAL DAY (1H/15M)' : 'AGGRESSIVE SCALP (1M/15M)'}.
+        RR LOCK: SCALP MIN 1:2.0+ | DAY MIN 1:4.0 to 1:8.0+.
+        
+        INSTRUCTIONS:
+        1. Identify the Target Asset ticker from IMAGES 1-3. 
+        2. Use IMAGE_4 (DXY) as a correlation filter ONLY (DXY Up = Target Down).
+        3. Mandatory high-RR levels based on Target Asset price scale.
+        4. If RR criteria is not met, return bias: "WATCHING".
+        
+        RETURN JSON: {"bias":"BUY|SELL|WATCHING", "ticker":"STR", "entry":number, "sl":number, "tp":number, "logic":"string", "conf":1-8, "assetType":"CRYPTO"}`
+    };
 
-    // Fix for: AbortController gives the API 45 seconds before timing out
     const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 45000);
+    const timeoutId = setTimeout(() => controller.abort(), 40000);
 
     const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         signal: controller.signal,
         body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }, ...inlineData] }],
+            contents: [{ parts: [prompt, ...parts] }],
             generationConfig: { response_mime_type: "application/json", temperature: 0.1 }
         })
     });
-    clearTimeout(id);
-
+    
+    clearTimeout(timeoutId);
     const result = await response.json();
-    if (!result.candidates?.[0]) throw new Error("Neural Link Timeout.");
-    return JSON.parse(result.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim());
+    if (result.error) throw new Error(result.error.message);
+    
+    const rawText = result.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim();
+    return JSON.parse(rawText);
 }
 
 function renderOutput(data, isDay) {
@@ -97,8 +106,9 @@ function renderOutput(data, isDay) {
         return isNaN(val) ? '--' : val.toFixed(4);
     };
     
-    document.getElementById('biasTxt').innerText = data.bias || 'WATCHING';
-    document.getElementById('biasTxt').className = `text-8xl font-black italic tracking-tighter ${data.bias === 'BUY' ? 'text-emerald-400' : 'text-rose-500'}`;
+    const biasEl = document.getElementById('biasTxt');
+    biasEl.innerText = data.bias || 'WATCHING';
+    biasEl.className = `text-8xl font-black italic tracking-tighter ${data.bias === 'BUY' ? 'text-emerald-400' : 'text-rose-500'}`;
     
     document.getElementById('entVal').innerText = num(data.entry);
     document.getElementById('slVal').innerText = num(data.sl);
