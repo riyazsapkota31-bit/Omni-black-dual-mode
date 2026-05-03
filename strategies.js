@@ -1,6 +1,6 @@
 /** * OMNI—DUAL | NEURAL CORE V62.6
  * MODEL: GEMINI-2.5-FLASH
- * ANTI-REJECTION: DYNAMIC PAYLOAD SCALING
+ * PATCH: RECURSIVE PAYLOAD COMPRESSION
  */
 
 var files = [null, null, null, null];
@@ -56,7 +56,7 @@ async function runNeuralScan() {
     btn.innerText = "SQUASHING PAYLOAD...";
 
     try {
-        // Dynamic Scaling to prevent API Rejection
+        // Dynamic Scaling: Aggressively shrinks pixels in Surgical Day mode
         const dataBuffers = await Promise.all(files.map(f => f ? processImg(f, isDay) : Promise.resolve(null)));
         btn.innerText = "NEURAL HANDSHAKE...";
         const signal = await fetchNeuralSignal(key, dataBuffers, isDay);
@@ -72,7 +72,7 @@ async function runNeuralScan() {
     }
 }
 
-// ANTI-REJECTION: Shrinks pixels and quality for Day Mode
+// COMPRESSION LOGIC: Reduces quality to 0.4 for Surgical Day
 async function processImg(f, isDay) {
     return new Promise((resolve) => {
         const r = new FileReader();
@@ -82,8 +82,8 @@ async function processImg(f, isDay) {
             img.src = e.target.result;
             img.onload = () => {
                 const cv = document.createElement('canvas');
-                // Deeper resize for Day mode to fit token limit
-                const maxDim = isDay ? 700 : 900;
+                // Deeper downscaling for higher timeframe data to avoid rejection
+                const maxDim = isDay ? 600 : 850; 
                 const scale = maxDim / Math.max(img.width, img.height);
                 cv.width = img.width * scale; cv.height = img.height * scale;
                 cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
@@ -93,14 +93,14 @@ async function processImg(f, isDay) {
     });
 }
 
-// NEURAL PROMPT: Optimized for SMC/ICT
+// STRATEGIC PROMPT: Standardized for SMC/ICT analysis
 async function fetchNeuralSignal(key, imgs, isDay) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
     const mode = isDay ? "SURGICAL DAY (1H/15M)" : "AGGRESSIVE SCALP (1M/15M)";
 
     const prompt = `[OMNI—V6]
     MODE: ${mode}
-    STRATEGY: SMC/ICT (Liquidity Sweeps/Displacement).
+    STRATEGY: SMC/ICT (Liquidity/Displacement).
     JSON: {"bias":"BUY|SELL", "ticker":"SYM", "entry":number, "sl":number, "tp":number, "logic":"short", "conf":1-8, "type":"CRYPTO|FOREX"}`;
 
     const parts = [{ text: prompt }];
