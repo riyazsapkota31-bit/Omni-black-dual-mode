@@ -12,6 +12,7 @@
         .active-box { border-color: #00f2ff !important; box-shadow: 0 0 25px rgba(0,242,255,0.2), inset 0 0 15px rgba(0,242,255,0.1); }
         .neon-text { text-shadow: 0 0 15px rgba(0,242,255,0.6); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        input[type="number"]::-webkit-inner-spin-button { display: none; }
     </style>
 </head>
 <body class="p-6 max-w-lg mx-auto no-scrollbar flex flex-col min-h-screen">
@@ -26,26 +27,35 @@
         </button>
     </div>
 
+    <div class="glass rounded-[32px] p-6 mb-10 flex items-center justify-between">
+        <span class="text-[8px] font-black uppercase text-white/20 tracking-widest">Aggressive Scalp</span>
+        <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="stratToggle" class="sr-only peer">
+            <div class="w-14 h-8 bg-white/5 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-cyan-500"></div>
+        </label>
+        <span class="text-[8px] font-black uppercase text-white/20 tracking-widest">Surgical Day</span>
+    </div>
+
     <div class="grid grid-cols-2 gap-4 mb-10">
-        <div id="c0" onclick="injectGallery(0)" class="glass h-40 rounded-[32px] flex flex-col items-center justify-center relative overflow-hidden transition-all">
+        <div id="c0" onclick="injectGallery(0)" class="glass h-40 rounded-[32px] flex flex-col items-center justify-center relative transition-all">
             <input type="file" id="f0" accept="image/*" hidden onchange="handleFile(0)">
             <div id="status0" class="flex flex-col items-center opacity-20"><span class="text-[10px] font-black uppercase">1H BIAS</span></div>
-            <div id="tick0" class="hidden flex flex-col items-center animate-pulse"><svg class="w-8 h-8 text-cyan-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"></path></svg></div>
+            <div id="tick0" class="hidden text-cyan-400"><svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"></path></svg></div>
         </div>
-        <div id="c1" onclick="injectGallery(1)" class="glass h-40 rounded-[32px] flex flex-col items-center justify-center relative overflow-hidden transition-all">
+        <div id="c1" onclick="injectGallery(1)" class="glass h-40 rounded-[32px] flex flex-col items-center justify-center relative transition-all">
             <input type="file" id="f1" accept="image/*" hidden onchange="handleFile(1)">
             <div id="status1" class="flex flex-col items-center opacity-20"><span class="text-[10px] font-black uppercase">15M STRUCT</span></div>
-            <div id="tick1" class="hidden flex flex-col items-center animate-pulse"><svg class="w-8 h-8 text-cyan-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"></path></svg></div>
+            <div id="tick1" class="hidden text-cyan-400"><svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"></path></svg></div>
         </div>
-        <div id="c2" onclick="injectGallery(2)" class="glass h-40 rounded-[32px] flex flex-col items-center justify-center relative overflow-hidden transition-all">
+        <div id="c2" onclick="injectGallery(2)" class="glass h-40 rounded-[32px] flex flex-col items-center justify-center relative transition-all">
             <input type="file" id="f2" accept="image/*" hidden onchange="handleFile(2)">
             <div id="status2" class="flex flex-col items-center opacity-20"><span class="text-[10px] font-black uppercase">1M TRIGGER</span></div>
-            <div id="tick2" class="hidden flex flex-col items-center animate-pulse"><svg class="w-8 h-8 text-cyan-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"></path></svg></div>
+            <div id="tick2" class="hidden text-cyan-400"><svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"></path></svg></div>
         </div>
-        <div id="c3" onclick="injectGallery(3)" class="glass h-40 rounded-[32px] flex flex-col items-center justify-center relative overflow-hidden transition-all">
+        <div id="c3" onclick="injectGallery(3)" class="glass h-40 rounded-[32px] flex flex-col items-center justify-center relative transition-all">
             <input type="file" id="f3" accept="image/*" hidden onchange="handleFile(3)">
             <div id="status3" class="flex flex-col items-center opacity-20"><span class="text-[10px] font-black uppercase">DXY DATA</span></div>
-            <div id="tick3" class="hidden flex flex-col items-center animate-pulse"><svg class="w-8 h-8 text-cyan-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"></path></svg></div>
+            <div id="tick3" class="hidden text-cyan-400"><svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"></path></svg></div>
         </div>
     </div>
 
