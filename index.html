@@ -26,7 +26,7 @@
             </div>
         </div>
         <button onclick="toggleSettings()" class="w-10 h-10 glass rounded-xl flex items-center justify-center terminal-btn">
-            <svg class="w-5 h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            <svg class="w-5 h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
         </button>
     </div>
 
@@ -43,25 +43,25 @@
     </div>
 
     <div class="grid grid-cols-2 gap-4 mb-8">
-        <div onclick="document.getElementById('f1').click()" class="glass h-36 rounded-3xl flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group">
-            <input type="file" id="f1" hidden onchange="handleUpload(event, 0)">
+        <div onclick="openGallery(0)" class="glass h-36 rounded-3xl flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group">
+            <input type="file" id="input0" accept="image/*" hidden onchange="processFile(0)">
             <span class="text-[10px] font-bold text-white/10 uppercase group-hover:text-cyan-400/30 transition-colors">Box 01</span>
-            <img id="p0" class="absolute inset-0 w-full h-full object-cover hidden">
+            <img id="img0" class="absolute inset-0 w-full h-full object-cover hidden">
         </div>
-        <div onclick="document.getElementById('f2').click()" class="glass h-36 rounded-3xl flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group">
-            <input type="file" id="f2" hidden onchange="handleUpload(event, 1)">
+        <div onclick="openGallery(1)" class="glass h-36 rounded-3xl flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group">
+            <input type="file" id="input1" accept="image/*" hidden onchange="processFile(1)">
             <span class="text-[10px] font-bold text-white/10 uppercase group-hover:text-cyan-400/30 transition-colors">Box 02</span>
-            <img id="p1" class="absolute inset-0 w-full h-full object-cover hidden">
+            <img id="img1" class="absolute inset-0 w-full h-full object-cover hidden">
         </div>
-        <div onclick="document.getElementById('f3').click()" class="glass h-36 rounded-3xl flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group">
-            <input type="file" id="f3" hidden onchange="handleUpload(event, 2)">
+        <div onclick="openGallery(2)" class="glass h-36 rounded-3xl flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group">
+            <input type="file" id="input2" accept="image/*" hidden onchange="processFile(2)">
             <span class="text-[10px] font-bold text-white/10 uppercase group-hover:text-cyan-400/30 transition-colors">Box 03</span>
-            <img id="p2" class="absolute inset-0 w-full h-full object-cover hidden">
+            <img id="img2" class="absolute inset-0 w-full h-full object-cover hidden">
         </div>
-        <div onclick="document.getElementById('f4').click()" class="glass h-36 rounded-3xl flex flex-col items-center justify-center cursor-pointer relative overflow-hidden border-dashed border-cyan-500/20 group">
-            <input type="file" id="f4" hidden onchange="handleUpload(event, 3)">
+        <div onclick="openGallery(3)" class="glass h-36 rounded-3xl flex flex-col items-center justify-center cursor-pointer relative overflow-hidden border-dashed border-cyan-500/20 group">
+            <input type="file" id="input3" accept="image/*" hidden onchange="processFile(3)">
             <span class="text-[10px] font-bold text-cyan-400/40 uppercase tracking-widest">DXY Data</span>
-            <img id="p3" class="absolute inset-0 w-full h-full object-cover hidden">
+            <img id="img3" class="absolute inset-0 w-full h-full object-cover hidden">
         </div>
     </div>
 
@@ -71,7 +71,6 @@
         <div class="bg-[#0a0a0a] w-full p-8 rounded-[40px] border border-white/10 relative">
             <button onclick="toggleSettings()" class="absolute top-6 right-6 text-white/20 hover:text-white">✕</button>
             <h3 class="text-xl font-900 mb-8 italic tracking-tighter">TERMINAL CONFIG</h3>
-            
             <div class="space-y-6">
                 <div>
                     <label class="text-[9px] uppercase font-black text-white/30 block mb-2">Gemini API Key</label>
@@ -97,7 +96,6 @@
             <h2 id="biasTxt" class="text-8xl font-900 italic tracking-tighter leading-none mb-2">--</h2>
             <p class="text-[10px] text-white/20 uppercase tracking-[0.5em] font-black">Neural Link Established</p>
         </div>
-
         <div class="grid grid-cols-2 gap-3 mb-6">
             <div class="glass p-5 rounded-3xl">
                 <span class="text-[8px] text-white/30 uppercase block font-black mb-1">Optimal Entry</span>
@@ -116,22 +114,21 @@
                 <span id="tpVal" class="text-xl font-900 text-emerald-400 tracking-tighter">--</span>
             </div>
         </div>
-
         <div id="logicSummary" class="glass p-6 rounded-[32px] text-[11px] leading-relaxed text-white/60 font-medium uppercase tracking-tight italic"></div>
     </div>
 
     <script src="strategies.js"></script>
     <script>
-        var files = [null, null, null, null];
-        function handleUpload(e, i) {
-            const f = e.target.files[0];
+        function openGallery(i) { document.getElementById(`input${i}`).click(); }
+        function processFile(i) {
+            const f = document.getElementById(`input${i}`).files[0];
             if(!f) return;
             files[i] = f;
             const r = new FileReader();
             r.onload = (ev) => {
-                const img = document.getElementById(`p${i}`);
-                img.src = ev.target.result;
-                img.classList.remove('hidden');
+                const preview = document.getElementById(`img${i}`);
+                preview.src = ev.target.result;
+                preview.classList.remove('hidden');
             };
             r.readAsDataURL(f);
         }
