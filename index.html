@@ -35,26 +35,48 @@
             <div id="box0" onclick="ui.trigger(0)" class="glass aspect-square rounded-[35px] flex flex-col items-center justify-center border-dashed border-2 border-white/5 relative active:scale-95 transition-all">
                 <input type="file" id="f0" accept="image/*" hidden onchange="engine.stage(0)">
                 <span id="l0" class="text-[8px] font-black opacity-20 tracking-[0.3em] uppercase">HTF Structure</span>
-                <div id="ok0" class="hidden text-cyan-400 font-900 text-lg uppercase italic">LOCKED</div>
+                <div id="ok0" class="hidden text-cyan-400 font-900 text-lg uppercase italic text-center px-2">LOCKED</div>
             </div>
             <div id="box1" onclick="ui.trigger(1)" class="glass aspect-square rounded-[35px] flex flex-col items-center justify-center border-dashed border-2 border-white/5 relative active:scale-95 transition-all">
                 <input type="file" id="f1" accept="image/*" hidden onchange="engine.stage(1)">
-                <span id="l1" class="text-[8px] font-black opacity-20 tracking-[0.3em] uppercase text-center px-4">ITF Bias</span>
-                <div id="ok1" class="hidden text-cyan-400 font-900 text-lg uppercase italic">LOCKED</div>
+                <span id="l1" class="text-[8px] font-black opacity-20 tracking-[0.3em] uppercase">ITF Bias</span>
+                <div id="ok1" class="hidden text-cyan-400 font-900 text-lg uppercase italic text-center px-2">LOCKED</div>
             </div>
             <div id="box2" onclick="ui.trigger(2)" class="glass aspect-square rounded-[35px] flex flex-col items-center justify-center border-dashed border-2 border-white/5 relative active:scale-95 transition-all">
                 <input type="file" id="f2" accept="image/*" hidden onchange="engine.stage(2)">
                 <span id="l2" class="text-[8px] font-black opacity-20 tracking-[0.3em] uppercase">LTF Trigger</span>
-                <div id="ok2" class="hidden text-cyan-400 font-900 text-lg uppercase italic">LOCKED</div>
+                <div id="ok2" class="hidden text-cyan-400 font-900 text-lg uppercase italic text-center px-2">LOCKED</div>
             </div>
             <div id="box3" onclick="ui.trigger(3)" class="glass aspect-square rounded-[35px] flex flex-col items-center justify-center border-dashed border-2 border-white/5 relative active:scale-95 transition-all">
                 <input type="file" id="f3" accept="image/*" hidden onchange="engine.stage(3)">
                 <span id="l3" class="text-[8px] font-black opacity-20 tracking-[0.3em] uppercase">DXY / News</span>
-                <div id="ok3" class="hidden text-cyan-400 font-900 text-lg uppercase italic">LOCKED</div>
+                <div id="ok3" class="hidden text-cyan-400 font-900 text-lg uppercase italic text-center px-2">LOCKED</div>
             </div>
         </div>
 
         <button id="igniteBtn" onclick="engine.ignite()" class="w-full bg-white text-black font-900 py-6 rounded-[30px] uppercase text-[11px] tracking-[0.5em] shadow-2xl active:scale-95 transition-all mb-10">Execute Signal</button>
+    </div>
+
+    <div id="result-screen" class="fixed inset-0 bg-black/98 z-[60] hidden flex flex-col p-6 overflow-y-auto">
+        <button onclick="document.getElementById('result-screen').classList.add('hidden')" class="w-full bg-white text-black font-900 py-6 rounded-[30px] uppercase text-[11px] tracking-[0.5em] mb-8">Execute Command</button>
+        <div class="text-center mb-8">
+            <h2 id="res-bias" class="text-[110px] font-900 italic leading-none tracking-tighter uppercase">--</h2>
+            <p class="text-[10px] uppercase tracking-[0.4em] text-white/30 font-black mt-2 italic">Surgical Day Trade Engine</p>
+        </div>
+        <div class="grid grid-cols-2 gap-4 mb-8">
+            <div class="glass rounded-[35px] p-6 text-center border-white/5"><span class="text-[8px] font-black opacity-30 uppercase tracking-widest block mb-2">Entry</span><div id="res-entry" class="text-2xl font-900 tracking-tighter italic">--</div></div>
+            <div class="glass rounded-[35px] p-6 text-center border-white/5"><span class="text-[8px] font-black opacity-30 uppercase tracking-widest block mb-2 text-cyan-400">Lot Size</span><div id="res-lot" class="text-2xl font-900 text-cyan-400 tracking-tighter italic">--</div></div>
+            <div class="glass rounded-[35px] p-6 text-center border-white/5"><span class="text-[8px] font-black opacity-30 uppercase tracking-widest block mb-2 text-red-500">Stop Loss</span><div id="res-sl" class="text-2xl font-900 text-red-500 tracking-tighter italic">--</div></div>
+            <div class="glass rounded-[35px] p-6 text-center border-white/5"><span class="text-[8px] font-black opacity-30 uppercase tracking-widest block mb-2 text-emerald-400">Take Profit</span><div id="res-tp" class="text-2xl font-900 text-emerald-400 tracking-tighter italic">--</div></div>
+        </div>
+        <div class="glass rounded-[40px] p-8 border-white/5">
+            <div class="flex gap-2 mb-4">
+                <span class="text-[7px] bg-cyan-900/30 text-cyan-400 px-3 py-1 rounded-full font-black uppercase tracking-widest">RR 1:2.5</span>
+                <span class="text-[7px] bg-emerald-900/30 text-emerald-400 px-3 py-1 rounded-full font-black uppercase tracking-widest">6/8 CONF</span>
+                <span id="res-asset" class="text-[7px] bg-white/10 text-white px-3 py-1 rounded-full font-black uppercase tracking-widest italic">--</span>
+            </div>
+            <p id="res-logic" class="text-[10px] leading-relaxed text-white/70 font-medium uppercase tracking-wider italic"></p>
+        </div>
     </div>
 
     <div id="settings" class="fixed inset-0 bg-black/95 backdrop-blur-3xl z-50 hidden flex items-center justify-center p-10">
@@ -70,7 +92,6 @@
             <button onclick="ui.save()" class="w-full bg-white text-black font-900 py-5 rounded-[25px] mt-10 text-[10px] uppercase tracking-widest active:scale-95">Lock Parameters</button>
         </div>
     </div>
-
     <script src="strategies.js"></script>
 </body>
 </html>
