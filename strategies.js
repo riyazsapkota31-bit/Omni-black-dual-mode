@@ -1,12 +1,4 @@
-/** * OMNI—BLACK SOVEREIGN V73.0 
- * INTERNAL ENGINE: DUAL-CORE LATENCY OPTIMIZATION
- */
-
-const state = {
-    mode: 'scalp',
-    payloads: [null, null, null, null],
-    isSyncing: false
-};
+const state = { mode: 'scalp', payloads: [null, null, null, null], isSyncing: false };
 
 const ui = {
     toggleSettings: () => document.getElementById('settings').classList.toggle('hidden'),
@@ -22,10 +14,9 @@ const ui = {
 const engine = {
     setMode: (m) => {
         state.mode = m;
-        // Strict UI state preservation
         const s = document.getElementById('btnScalp'), d = document.getElementById('btnDay');
-        const active = "flex-1 py-5 rounded-[32px] text-[10px] font-900 uppercase tracking-widest bg-cyan-500 text-black shadow-lg";
-        const inactive = "flex-1 py-5 rounded-[32px] text-[10px] font-900 uppercase tracking-widest text-white/20";
+        const active = "flex-1 py-3.5 rounded-[20px] text-[9px] font-900 uppercase tracking-widest bg-cyan-500 text-black shadow-lg";
+        const inactive = "flex-1 py-3.5 rounded-[20px] text-[9px] font-900 uppercase tracking-widest text-white/20";
         s.className = m === 'scalp' ? active : inactive;
         d.className = m === 'day' ? active : inactive;
     },
@@ -36,29 +27,24 @@ const engine = {
             document.getElementById(`l${i}`).classList.add('hidden');
             document.getElementById(`ok${i}`).classList.remove('hidden');
             document.getElementById(`box${i}`).classList.add('active-ring');
-            
-            // COMPRESSION START: Shaves minutes off the upload time
             state.payloads[i] = await engine.compress(file);
         }
     },
 
     compress: (file) => {
         return new Promise(res => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = (e) => {
+            const r = new FileReader();
+            r.readAsDataURL(file);
+            r.onload = (e) => {
                 const img = new Image();
                 img.src = e.target.result;
                 img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    // Optimized for technical chart clarity at lower weight
-                    const maxWidth = 1024; 
-                    const scale = maxWidth / img.width;
-                    canvas.width = maxWidth;
-                    canvas.height = img.height * scale;
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    res(canvas.toDataURL('image/jpeg', 0.6).split(',')[1]); 
+                    const c = document.createElement('canvas');
+                    const scale = 1024 / img.width;
+                    c.width = 1024; c.height = img.height * scale;
+                    const ctx = c.getContext('2d');
+                    ctx.drawImage(img, 0, 0, c.width, c.height);
+                    res(c.toDataURL('image/jpeg', 0.6).split(',')[1]);
                 };
             };
         });
@@ -72,33 +58,32 @@ const engine = {
         const btn = document.getElementById('igniteBtn');
         btn.innerText = "VERIFYING CONFLUENCE...";
 
-        const prompt = `CORE: OMNI-BLACK 2.5. MODE: ${state.mode.toUpperCase()}. BAL: $${b}. RISK: ${r}%. Analyze 4-chart confluence for SMC/ICT. Return JSON: {"asset":"SYM","bias":"DIR","entry":"0.0","sl":"0.0","tp":"0.0","logic":"Reason"}`;
+        const prompt = `CORE: OMNI-BLACK. MODE: ${state.mode.toUpperCase()}. CAPITAL: $${b} RISK: ${r}%. Analyze 4-chart confluence (SMC/ICT). 
+        STRICT MANDATE: Logic field MUST be 15 words or fewer. 
+        JSON ONLY: {"asset":"SYM","bias":"BUY/SELL/WATCHING","entry":"VAL","sl":"VAL","tp":"VAL","lots":"VAL","logic":"15-word max logic"}`;
 
         try {
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${k}`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [
-                            { text: prompt },
-                            ...state.payloads.filter(p => p).map(data => ({ inline_data: { mime_type: "image/jpeg", data } }))
-                        ]
-                    }]
-                })
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }, ...state.payloads.filter(p => p).map(d => ({ inline_data: { mime_type: "image/jpeg", data: d } }))] }] })
             });
 
             const data = await response.json();
-            const cleanText = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '');
-            const res = JSON.parse(cleanText);
+            const res = JSON.parse(data.candidates[0].content.parts[0].text.replace(/```json|```/g, ''));
 
-            alert(`[${res.asset}] ${res.bias}\nENTRY: ${res.entry}\nSL: ${res.sl}\nTP: ${res.tp}\n\nLOGIC: ${res.logic}`);
-        } catch (err) {
-            alert("ENGINE TIMEOUT: Check API Key or Connection.");
-        } finally {
-            state.isSyncing = false;
-            btn.innerText = "Execute Signal";
-        }
+            const biasEl = document.getElementById('res-bias');
+            biasEl.innerText = res.bias;
+            biasEl.className = `text-[110px] font-900 italic leading-none tracking-tighter uppercase ${res.bias === 'BUY' ? 'text-emerald-400' : res.bias === 'SELL' ? 'text-red-500' : 'text-white/20'}`;
+            
+            document.getElementById('res-entry').innerText = res.entry;
+            document.getElementById('res-sl').innerText = res.sl;
+            document.getElementById('res-tp').innerText = res.tp;
+            document.getElementById('res-lot').innerText = res.lots;
+            document.getElementById('res-asset').innerText = res.asset;
+            document.getElementById('res-logic').innerText = res.logic;
+            document.getElementById('result-screen').classList.remove('hidden');
+        } catch (e) { alert("SYNC ERROR"); } finally { state.isSyncing = false; btn.innerText = "Execute Signal"; }
     }
 };
 
