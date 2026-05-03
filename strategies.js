@@ -1,5 +1,4 @@
-/**
- * OMNI—BLACK V62.6 | INSTANT NEURAL ENGINE
+/** * OMNI—BLACK V62.6 | PERFORMANCE STABLE 
  */
 var files = [null, null, null, null];
 const ASSET_SPECS = { CRYPTO: { lotDivisor: 1 }, FOREX: { lotDivisor: 10 }, COMMODITY: { lotDivisor: 100 } };
@@ -17,8 +16,9 @@ async function executeSurgicalScan() {
         const apiKey = localStorage.getItem('omni_kIn');
         if (!apiKey) throw new Error("API Key Missing.");
 
-        const b64Imgs = await Promise.all(files.map(f => f ? toBase64(f) : Promise.resolve(null)));
-        const signal = await fetchNeuralSignal(apiKey, b64Imgs, isDay);
+        // Compress images to prevent "Neural Link Timeout"
+        const compressedImgs = await Promise.all(files.map(f => f ? compressAndEncode(f) : Promise.resolve(null)));
+        const signal = await fetchNeuralSignal(apiKey, compressedImgs, isDay);
         
         renderOutput(signal, isDay);
         out.classList.remove('hidden');
@@ -31,12 +31,34 @@ async function executeSurgicalScan() {
     }
 }
 
+// Fixed compression to stop timeouts
+async function compressAndEncode(file) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (e) => {
+            const img = new Image();
+            img.src = e.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                // Standardizing resolution for faster API processing
+                const scale = 1200 / Math.max(img.width, img.height);
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                resolve(canvas.toDataURL('image/jpeg', 0.7)); 
+            };
+        };
+    });
+}
+
 async function fetchNeuralSignal(key, images, isDay) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
     const inlineData = images.filter(Boolean).map(b => ({ inline_data: { mime_type: "image/jpeg", data: b.split(',')[1] } }));
 
     const prompt = `[SYSTEM: OMNI-BLACK V62.6]
-    TASK: SINGLE-PASS ANALYSIS. MODE: ${isDay ? 'SURGICAL DAY' : 'AGGRESSIVE SCALP'}.
+    TASK: ANALYSE CHART PIXELS. MODE: ${isDay ? 'SURGICAL DAY' : 'AGGRESSIVE SCALP'}.
     RETURN JSON ONLY: {"bias":"BUY|SELL|WATCHING", "ticker":"STR", "entry":number, "sl":number, "tp":number, "logic":"string", "conf":1-8, "assetType":"CRYPTO|FOREX"}`;
 
     const response = await fetch(url, {
@@ -51,7 +73,6 @@ async function fetchNeuralSignal(key, images, isDay) {
     const result = await response.json();
     if (!result.candidates?.[0]) throw new Error("Neural Link Timeout.");
 
-    // Removes potential markdown backticks that crash the parser
     let rawText = result.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim();
     return JSON.parse(rawText);
 }
@@ -59,10 +80,11 @@ async function fetchNeuralSignal(key, images, isDay) {
 function renderOutput(data, isDay) {
     const num = (v) => {
         const val = parseFloat(v);
+        // Fix for "Cannot read properties of undefined"
         return isNaN(val) ? '--' : val.toFixed(4);
     };
     
-    document.getElementById('biasTxt').innerText = data.bias;
+    document.getElementById('biasTxt').innerText = data.bias || 'WATCHING';
     document.getElementById('biasTxt').className = `text-8xl font-black italic tracking-tighter ${data.bias === 'BUY' ? 'text-emerald-400' : 'text-rose-500'}`;
     
     document.getElementById('entVal').innerText = num(data.entry);
@@ -74,11 +96,11 @@ function renderOutput(data, isDay) {
 
     document.getElementById('logicSummary').innerHTML = `
         <div class="flex gap-2 mb-3">
-            <span class="bg-cyan-500/20 text-cyan-400 px-3 py-1 rounded-full text-[9px] font-black uppercase text-center">RR 1:${rr}</span>
-            <span class="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-[9px] font-black uppercase text-center">${data.conf}/8 CONF</span>
-            <span class="bg-white/10 px-3 py-1 rounded-full text-[9px] font-black uppercase text-center">${data.ticker}</span>
+            <span class="bg-cyan-500/20 text-cyan-400 px-3 py-1 rounded-full text-[9px] font-black uppercase">RR 1:${rr}</span>
+            <span class="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-[9px] font-black uppercase">${data.conf || 0}/8 CONF</span>
+            <span class="bg-white/10 px-3 py-1 rounded-full text-[9px] font-black uppercase">${data.ticker || 'N/A'}</span>
         </div>
-        <p class="text-white/80 font-bold uppercase text-[11px] leading-tight">${data.logic}</p>
+        <p class="text-white/80 font-bold uppercase text-[11px] leading-tight">${data.logic || 'No structural signal detected.'}</p>
     `;
 
     const bal = parseFloat(localStorage.getItem('omni_bIn')) || 0;
@@ -90,4 +112,3 @@ function renderOutput(data, isDay) {
 }
 
 function setButtonState(btn, d, t) { btn.disabled = d; btn.innerText = t; btn.style.opacity = d ? "0.5" : "1"; }
-function toBase64(f) { return new Promise(r => { const rd = new FileReader(); rd.readAsDataURL(f); rd.onload = () => r(rd.result); }); }
