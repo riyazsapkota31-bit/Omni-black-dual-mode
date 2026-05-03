@@ -1,7 +1,6 @@
 /**
  * OMNI—BLACK V62.6 | INSTANT NEURAL ENGINE
  */
-
 var files = [null, null, null, null];
 const ASSET_SPECS = { CRYPTO: { lotDivisor: 1 }, FOREX: { lotDivisor: 10 }, COMMODITY: { lotDivisor: 100 } };
 
@@ -52,7 +51,9 @@ async function fetchNeuralSignal(key, images, isDay) {
     const result = await response.json();
     if (!result.candidates?.[0]) throw new Error("Neural Link Timeout.");
 
-    return JSON.parse(result.candidates[0].content.parts[0].text.replace(/```json|```/g, ""));
+    // Removes potential markdown backticks that crash the parser
+    let rawText = result.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim();
+    return JSON.parse(rawText);
 }
 
 function renderOutput(data, isDay) {
@@ -73,9 +74,9 @@ function renderOutput(data, isDay) {
 
     document.getElementById('logicSummary').innerHTML = `
         <div class="flex gap-2 mb-3">
-            <span class="bg-cyan-500/20 text-cyan-400 px-3 py-1 rounded-full text-[9px] font-black uppercase">RR 1:${rr}</span>
-            <span class="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-[9px] font-black uppercase">${data.conf}/8 CONF</span>
-            <span class="bg-white/10 px-3 py-1 rounded-full text-[9px] font-black uppercase">${data.ticker}</span>
+            <span class="bg-cyan-500/20 text-cyan-400 px-3 py-1 rounded-full text-[9px] font-black uppercase text-center">RR 1:${rr}</span>
+            <span class="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-[9px] font-black uppercase text-center">${data.conf}/8 CONF</span>
+            <span class="bg-white/10 px-3 py-1 rounded-full text-[9px] font-black uppercase text-center">${data.ticker}</span>
         </div>
         <p class="text-white/80 font-bold uppercase text-[11px] leading-tight">${data.logic}</p>
     `;
