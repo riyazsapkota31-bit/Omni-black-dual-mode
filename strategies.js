@@ -1,9 +1,8 @@
 /**
  * OMNI—BLACK V62.6 | INSTANT NEURAL ENGINE
- * SPEED: < 5s | MODEL: GEMINI 2.5 FLASH
  */
 
-let files = [null, null, null, null];
+var files = [null, null, null, null];
 const ASSET_SPECS = { CRYPTO: { lotDivisor: 1 }, FOREX: { lotDivisor: 10 }, COMMODITY: { lotDivisor: 100 } };
 
 async function executeSurgicalScan() {
@@ -11,20 +10,15 @@ async function executeSurgicalScan() {
     const out = document.getElementById('outPanel');
     const isDay = document.getElementById('mode-input').checked;
     
-    if (files.filter(f => f).length < 2) { 
-        alert("SYSTEM ERROR: Upload at least 2 charts for confluence."); 
-        return; 
-    }
+    if (files.filter(f => f).length < 2) return alert("Upload at least 2 charts.");
     
     setButtonState(btn, true, isDay ? "QUANT ANALYSING..." : "SCALP TRIGGERING...");
 
     try {
         const apiKey = localStorage.getItem('omni_kIn');
-        if (!apiKey) throw new Error("Hardware Link Offline: API Key Missing.");
+        if (!apiKey) throw new Error("API Key Missing.");
 
         const b64Imgs = await Promise.all(files.map(f => f ? toBase64(f) : Promise.resolve(null)));
-        
-        // SINGLE-PASS EXECUTION (Eliminates the 2-minute hang)
         const signal = await fetchNeuralSignal(apiKey, b64Imgs, isDay);
         
         renderOutput(signal, isDay);
@@ -42,36 +36,30 @@ async function fetchNeuralSignal(key, images, isDay) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
     const inlineData = images.filter(Boolean).map(b => ({ inline_data: { mime_type: "image/jpeg", data: b.split(',')[1] } }));
 
-    // High-Density Unified Prompt for maximum precision and speed
-    const surgicalPrompt = `[SYSTEM: OMNI-BLACK V62.6]
-    TASK: SINGLE-PASS STRATEGIC ANALYSIS.
-    MODE: ${isDay ? 'SURGICAL DAY TRADE' : 'AGGRESSIVE SCALPING'}.
-    PROCESS: Extract Asset/Price + Apply 8-Core Matrix (SMC/ICT/DXY).
-    ENFORCE: RR MIN ${isDay ? '1:3' : '1:1.5'}.
+    const prompt = `[SYSTEM: OMNI-BLACK V62.6]
+    TASK: SINGLE-PASS ANALYSIS. MODE: ${isDay ? 'SURGICAL DAY' : 'AGGRESSIVE SCALP'}.
     RETURN JSON ONLY: {"bias":"BUY|SELL|WATCHING", "ticker":"STR", "entry":number, "sl":number, "tp":number, "logic":"string", "conf":1-8, "assetType":"CRYPTO|FOREX"}`;
 
     const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            contents: [{ parts: [{ text: surgicalPrompt }, ...inlineData] }],
+            contents: [{ parts: [{ text: prompt }, ...inlineData] }],
             generationConfig: { response_mime_type: "application/json", temperature: 0.1 }
         })
     });
 
     const result = await response.json();
+    if (!result.candidates?.[0]) throw new Error("Neural Link Timeout.");
 
-    // Fixes the "reading '0'" error from your screenshot
-    if (!result.candidates?.[0]) {
-        throw new Error("Neural Link Timeout. Check API Key/Connection.");
-    }
-
-    return JSON.parse(result.candidates[0].content.parts[0].text);
+    return JSON.parse(result.candidates[0].content.parts[0].text.replace(/```json|```/g, ""));
 }
 
 function renderOutput(data, isDay) {
-    // Fixes the ".toFixed is not a function" error from your screenshot
-    const num = (v) => (typeof v === 'number') ? v.toFixed(4) : '--';
+    const num = (v) => {
+        const val = parseFloat(v);
+        return isNaN(val) ? '--' : val.toFixed(4);
+    };
     
     document.getElementById('biasTxt').innerText = data.bias;
     document.getElementById('biasTxt').className = `text-8xl font-black italic tracking-tighter ${data.bias === 'BUY' ? 'text-emerald-400' : 'text-rose-500'}`;
@@ -80,8 +68,8 @@ function renderOutput(data, isDay) {
     document.getElementById('slVal').innerText = num(data.sl);
     document.getElementById('tpVal').innerText = num(data.tp);
 
-    const risk = Math.abs(data.entry - data.sl) || 0;
-    const rr = risk > 0 ? (Math.abs(data.tp - data.entry) / risk).toFixed(1) : '0.0';
+    const risk = Math.abs(parseFloat(data.entry) - parseFloat(data.sl)) || 0;
+    const rr = risk > 0 ? (Math.abs(parseFloat(data.tp) - parseFloat(data.entry)) / risk).toFixed(1) : '0.0';
 
     document.getElementById('logicSummary').innerHTML = `
         <div class="flex gap-2 mb-3">
@@ -92,11 +80,10 @@ function renderOutput(data, isDay) {
         <p class="text-white/80 font-bold uppercase text-[11px] leading-tight">${data.logic}</p>
     `;
 
-    // Position Sizing
     const bal = parseFloat(localStorage.getItem('omni_bIn')) || 0;
     const rsk = parseFloat(localStorage.getItem('omni_rIn')) || 0;
     if (bal && rsk && risk > 0) {
-        const div = ASSET_SPECS[data.assetType]?.lotDivisor || 1;
+        const div = ASSET_SPECS[data.assetType || "CRYPTO"].lotDivisor;
         document.getElementById('lotVal').innerText = ((bal * (rsk / 100)) / (risk * div)).toFixed(4);
     }
 }
