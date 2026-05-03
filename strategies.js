@@ -1,117 +1,94 @@
-/** * OMNI—DUAL | STRATEGIC ENGINE V62.6
- * FIX: API_REJECTED / CHECK VERSION
+/** * OMNI—DUAL | CORE V62.6 REWRITE
+ * STATUS: FIXED VERSION LOCK (GEMINI 2.5 FLASH)
  */
 
-let files = [null, null, null, null];
+let engine_files = [null, null, null, null];
 
-// PERSISTENCE ENGINE: Reloads your Trading Parameters
-window.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('apiKeyIn').value = localStorage.getItem('omni_k') || '';
-    document.getElementById('balIn').value = localStorage.getItem('omni_b') || '';
-    document.getElementById('riskIn').value = localStorage.getItem('omni_r') || '';
-});
+// Initialization
+window.onload = () => {
+    document.getElementById('api_in').value = localStorage.getItem('omni_key') || '';
+    document.getElementById('bal_in').value = localStorage.getItem('omni_bal') || '';
+    document.getElementById('risk_in').value = localStorage.getItem('omni_risk') || '';
+};
 
-function toggleSettings() { 
-    document.getElementById('settingsPanel').classList.toggle('hidden'); 
+function ui_toggle() {
+    const p = document.getElementById('settingsPanel');
+    const t = document.getElementById('terminalContainer');
+    const isHidden = p.classList.toggle('hidden');
+    // Force terminal off-screen to prevent layout artifacts
+    t.style.display = isHidden ? 'flex' : 'none';
 }
 
-function saveCore() {
-    localStorage.setItem('omni_k', document.getElementById('apiKeyIn').value);
-    localStorage.setItem('omni_b', document.getElementById('balIn').value);
-    localStorage.setItem('omni_r', document.getElementById('riskIn').value);
-    toggleSettings();
+function save_config() {
+    localStorage.setItem('omni_key', document.getElementById('api_in').value);
+    localStorage.setItem('omni_bal', document.getElementById('bal_in').value);
+    localStorage.setItem('omni_risk', document.getElementById('risk_in').value);
+    ui_toggle();
 }
 
-function injectGallery(i) { document.getElementById(`f${i}`).click(); }
+function trigger_file(i) { document.getElementById(`f${i}`).click(); }
 
-function handleFile(i) {
-    const input = document.getElementById(`f${i}`);
-    if (!input.files[0]) return;
-    files[i] = input.files[0];
-    document.getElementById(`status${i}`).classList.add('hidden');
-    document.getElementById(`tick${i}`).classList.remove('hidden');
-    document.getElementById(`c${i}`).classList.add('active-box');
+function load_file(i) {
+    const file = document.getElementById(`f${i}`).files[0];
+    if (file) {
+        engine_files[i] = file;
+        document.getElementById(`label${i}`).classList.add('hidden');
+        document.getElementById(`tick${i}`).classList.remove('hidden');
+        document.getElementById(`box${i}`).classList.add('active-border');
+    }
 }
 
-async function runNeuralScan() {
-    const btn = document.getElementById('goBtn');
-    const key = localStorage.getItem('omni_k');
-    if (!key) return alert("CRITICAL: CORE NOT SYNCED. ADD API_KEY.");
+async function run_engine() {
+    const key = localStorage.getItem('omni_key');
+    if (!key) return alert("CORE REJECTED: API KEY MISSING.");
 
+    const btn = document.getElementById('execBtn');
     btn.disabled = true;
-    btn.innerText = "PURGING COMPLEXITY...";
+    btn.innerText = "NEURAL HANDSHAKE...";
 
     try {
-        // Fix for 400 Bad Request: Optimizes Chart Resolution
-        const buffers = await Promise.all(files.map(f => f ? compress(f) : Promise.resolve(null)));
-        btn.innerText = "NEURAL HANDSHAKE...";
-        const result = await callNeuralEngine(key, buffers.filter(b => b));
-        displayOutput(result);
-    } catch (err) {
-        alert("VERSION_MISMATCH: RE-SYNC API CORE.");
-        console.error(err);
+        const image_data = await Promise.all(
+            engine_files.map(f => f ? encode_file(f) : null)
+        );
+
+        // FORCED 2.5 FLASH ENDPOINT
+        const api_url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
+        
+        const request_body = {
+            contents: [{
+                parts: [
+                    { text: "ACT AS OMNI-DUAL TRADING ENGINE. Analyze SMC/ICT structures for high-probability setups. Output ONLY valid JSON: {'bias': 'BULLISH/BEARISH', 'target': 'Price_Level', 'logic': 'one_sentence'}" },
+                    ...image_data.filter(d => d).map(b64 => ({
+                        inline_data: { mime_type: "image/jpeg", data: b64 }
+                    }))
+                ]
+            }]
+        };
+
+        const response = await fetch(api_url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(request_body)
+        });
+
+        const json = await response.json();
+        if (json.error) throw new Error(`${json.error.status}: ${json.error.message}`);
+        
+        const trade = JSON.parse(json.candidates[0].content.parts[0].text);
+        alert(`STRATEGY SYNCED\n\nBIAS: ${trade.bias}\nTARGET: ${trade.target}\nLOGIC: ${trade.logic}`);
+
+    } catch (e) {
+        alert("CRITICAL ERROR: " + e.message);
     } finally {
         btn.disabled = false;
         btn.innerText = "EXECUTE COMMAND";
     }
 }
 
-async function compress(file) {
+function encode_file(file) {
     return new Promise((resolve) => {
         const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(',')[1]);
         reader.readAsDataURL(file);
-        reader.onload = (e) => {
-            const img = new Image();
-            img.src = e.target.result;
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const MAX_DIM = 480; 
-                const scale = MAX_DIM / Math.max(img.width, img.height);
-                canvas.width = img.width * scale;
-                canvas.height = img.height * scale;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                resolve(canvas.toDataURL('image/jpeg', 0.4).split(',')[1]);
-            };
-        };
     });
-}
-
-async function callNeuralEngine(key, images) {
-    // FORCE-SYNC: Your account requires gemini-2.5-flash
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
-    const mode = document.getElementById('stratToggle').checked ? "SURGICAL DAY" : "AGGRESSIVE SCALP";
-    const balance = localStorage.getItem('omni_b') || "1000";
-    const risk = localStorage.getItem('omni_r') || "1";
-
-    const promptText = `ANALYSIS_MODE: SMC ${mode}. 
-    USER_BALANCE: $${balance} | RISK: ${risk}%. 
-    Instructions: Verify 1H Bias, Liquidity Sweeps, and Displacement. 
-    Output JSON ONLY: {"bias":"BUY/SELL", "logic":"[Restored SMC logic string]"}`;
-
-    const parts = [{ text: promptText }];
-    images.forEach(img => { parts.push({ inline_data: { mime_type: "image/jpeg", data: img } }); });
-
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            contents: [{ parts: parts }],
-            generationConfig: { response_mime_type: "application/json", temperature: 0.1 }
-        })
-    });
-    
-    const data = await response.json();
-    if (!data.candidates) throw new Error("API_REJECTED");
-    return JSON.parse(data.candidates[0].content.parts[0].text);
-}
-
-function displayOutput(data) {
-    const panel = document.getElementById('outPanel');
-    const txt = document.getElementById('biasTxt');
-    panel.classList.remove('hidden');
-    txt.innerText = data.bias;
-    txt.style.color = data.bias === "BUY" ? "#34d399" : "#fb7185";
-    document.getElementById('logicLog').innerText = data.logic;
-    panel.scrollIntoView({ behavior: 'smooth' });
 }
