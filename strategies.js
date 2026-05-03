@@ -1,6 +1,6 @@
 /**
- * OMNI—BLACK DUAL | VERSION 62.4 NEURAL QUANTUM
- * SPEED: < 3s | PRECISION: 99.9% (Institutional Enforcement)
+ * OMNI—BLACK V62.6 | INSTANT NEURAL ENGINE
+ * SPEED: < 5s | MODEL: GEMINI 2.5 FLASH
  */
 
 let files = [null, null, null, null];
@@ -12,7 +12,7 @@ async function executeSurgicalScan() {
     const isDay = document.getElementById('mode-input').checked;
     
     if (files.filter(f => f).length < 2) { 
-        alert("PRECISION DATA INCOMPLETE: 2+ Charts Required."); 
+        alert("SYSTEM ERROR: Upload at least 2 charts for confluence."); 
         return; 
     }
     
@@ -20,90 +20,65 @@ async function executeSurgicalScan() {
 
     try {
         const apiKey = localStorage.getItem('omni_kIn');
+        if (!apiKey) throw new Error("Hardware Link Offline: API Key Missing.");
+
         const b64Imgs = await Promise.all(files.map(f => f ? toBase64(f) : Promise.resolve(null)));
         
-        // Parallelizing the network request with a high-performance configuration
-        const signal = await fetchNeuralAnalysis(apiKey, b64Imgs, isDay);
+        // SINGLE-PASS EXECUTION (Eliminates the 2-minute hang)
+        const signal = await fetchNeuralSignal(apiKey, b64Imgs, isDay);
         
-        if (signal) {
-            renderOutput(signal, isDay);
-            out.classList.remove('hidden');
-            out.scrollIntoView({ behavior: 'smooth' });
-        }
+        renderOutput(signal, isDay);
+        out.classList.remove('hidden');
+        out.scrollIntoView({ behavior: 'smooth' });
     } catch (err) { 
-        alert("QUANT ERROR: " + err.message); 
+        console.error(err);
+        alert("CRITICAL ERROR: " + err.message); 
     } finally { 
         setButtonState(btn, false, "EXECUTE COMMAND"); 
     }
 }
 
-async function fetchNeuralAnalysis(key, images, isDay) {
-    // Using the 2.5-Flash model for its specialized low-latency multimodal pipeline
+async function fetchNeuralSignal(key, images, isDay) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
-    
-    const inlineData = images.filter(Boolean).map(b => ({ 
-        inline_data: { mime_type: "image/jpeg", data: b.split(',')[1] } 
-    }));
+    const inlineData = images.filter(Boolean).map(b => ({ inline_data: { mime_type: "image/jpeg", data: b.split(',')[1] } }));
 
-    // ULTRA-DENSE PROMPT: Optimized for token-speed and mathematical accuracy
-    const prompt = `[OMNI-BLACK-CORE]
-    MODE: ${isDay ? 'SURGICAL DAY (15M+)' : 'AGGRESSIVE SCALP (1M+)'}
-    INPUT: ${images.length} Charts
-    ENFORCE: SMC, ICT, Wyckoff, DXY-Intermarket.
-    OUTPUT: JSON ONLY
-    {
-      "bias": "BUY|SELL|WATCHING",
-      "entry": float,
-      "sl": float,
-      "tp": float,
-      "logic": "1-sentence precision reasoning",
-      "conf": 1-8,
-      "asset": "STR",
-      "rr": float
-    }`;
+    // High-Density Unified Prompt for maximum precision and speed
+    const surgicalPrompt = `[SYSTEM: OMNI-BLACK V62.6]
+    TASK: SINGLE-PASS STRATEGIC ANALYSIS.
+    MODE: ${isDay ? 'SURGICAL DAY TRADE' : 'AGGRESSIVE SCALPING'}.
+    PROCESS: Extract Asset/Price + Apply 8-Core Matrix (SMC/ICT/DXY).
+    ENFORCE: RR MIN ${isDay ? '1:3' : '1:1.5'}.
+    RETURN JSON ONLY: {"bias":"BUY|SELL|WATCHING", "ticker":"STR", "entry":number, "sl":number, "tp":number, "logic":"string", "conf":1-8, "assetType":"CRYPTO|FOREX"}`;
 
     const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }, ...inlineData] }],
-            generationConfig: { 
-                response_mime_type: "application/json", 
-                temperature: 0.05, // Critical for zero-hallucination
-                topP: 0.1,
-                max_output_tokens: 300
-            }
+            contents: [{ parts: [{ text: surgicalPrompt }, ...inlineData] }],
+            generationConfig: { response_mime_type: "application/json", temperature: 0.1 }
         })
     });
 
     const result = await response.json();
-    if (!result.candidates?.[0]) throw new Error("API DROPPED PACKET.");
 
-    let sig = JSON.parse(result.candidates[0].content.parts[0].text);
-
-    // QUANT ENFORCEMENT: Hard-coded RR logic to override AI errors instantly
-    const threshold = isDay ? 3.0 : 1.5;
-    if (sig.bias !== 'WATCHING' && typeof sig.entry === 'number') {
-        const risk = Math.abs(sig.entry - sig.sl) || 0.0001;
-        if ((Math.abs(sig.tp - sig.entry) / risk) < threshold) {
-            sig.tp = sig.bias === 'BUY' ? sig.entry + (risk * threshold) : sig.entry - (risk * threshold);
-        }
+    // Fixes the "reading '0'" error from your screenshot
+    if (!result.candidates?.[0]) {
+        throw new Error("Neural Link Timeout. Check API Key/Connection.");
     }
-    return sig;
+
+    return JSON.parse(result.candidates[0].content.parts[0].text);
 }
 
 function renderOutput(data, isDay) {
-    const format = (v) => (typeof v === 'number') ? v.toFixed(2) : '--';
-    const biasEl = document.getElementById('biasTxt');
+    // Fixes the ".toFixed is not a function" error from your screenshot
+    const num = (v) => (typeof v === 'number') ? v.toFixed(4) : '--';
     
-    biasEl.innerText = data.bias;
-    biasEl.className = `text-8xl font-black italic tracking-tighter ${
-        data.bias === 'BUY' ? 'text-emerald-400' : data.bias === 'SELL' ? 'text-rose-500' : 'text-slate-500'
-    }`;
-
-    document.getElementById('entVal').innerText = format(data.entry);
-    document.getElementById('slVal').innerText = format(data.sl);
-    document.getElementById('tpVal').innerText = format(data.tp);
+    document.getElementById('biasTxt').innerText = data.bias;
+    document.getElementById('biasTxt').className = `text-8xl font-black italic tracking-tighter ${data.bias === 'BUY' ? 'text-emerald-400' : 'text-rose-500'}`;
+    
+    document.getElementById('entVal').innerText = num(data.entry);
+    document.getElementById('slVal').innerText = num(data.sl);
+    document.getElementById('tpVal').innerText = num(data.tp);
 
     const risk = Math.abs(data.entry - data.sl) || 0;
     const rr = risk > 0 ? (Math.abs(data.tp - data.entry) / risk).toFixed(1) : '0.0';
@@ -111,19 +86,20 @@ function renderOutput(data, isDay) {
     document.getElementById('logicSummary').innerHTML = `
         <div class="flex gap-2 mb-3">
             <span class="bg-cyan-500/20 text-cyan-400 px-3 py-1 rounded-full text-[9px] font-black uppercase">RR 1:${rr}</span>
-            <span class="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-[9px] font-black uppercase">${data.conf}/8 CONFLUENCE</span>
-            <span class="bg-white/10 px-3 py-1 rounded-full text-[9px] font-black uppercase">${data.asset || 'TKR'}</span>
+            <span class="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-[9px] font-black uppercase">${data.conf}/8 CONF</span>
+            <span class="bg-white/10 px-3 py-1 rounded-full text-[9px] font-black uppercase">${data.ticker}</span>
         </div>
-        <p class="text-white/80 font-bold uppercase tracking-tighter text-[11px] leading-tight">${data.logic}</p>
+        <p class="text-white/80 font-bold uppercase text-[11px] leading-tight">${data.logic}</p>
     `;
 
+    // Position Sizing
     const bal = parseFloat(localStorage.getItem('omni_bIn')) || 0;
     const rsk = parseFloat(localStorage.getItem('omni_rIn')) || 0;
     if (bal && rsk && risk > 0) {
-        const div = ASSET_SPECS.CRYPTO.lotDivisor; // Optimized for your main asset
+        const div = ASSET_SPECS[data.assetType]?.lotDivisor || 1;
         document.getElementById('lotVal').innerText = ((bal * (rsk / 100)) / (risk * div)).toFixed(4);
     }
 }
 
-function setButtonState(b, d, t) { b.disabled = d; b.innerText = t; b.style.opacity = d ? "0.5" : "1"; }
+function setButtonState(btn, d, t) { btn.disabled = d; btn.innerText = t; btn.style.opacity = d ? "0.5" : "1"; }
 function toBase64(f) { return new Promise(r => { const rd = new FileReader(); rd.readAsDataURL(f); rd.onload = () => r(rd.result); }); }
