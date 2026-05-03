@@ -12,7 +12,6 @@
         .active-box { border-color: #00f2ff !important; box-shadow: 0 0 25px rgba(0,242,255,0.2), inset 0 0 15px rgba(0,242,255,0.1); }
         .neon-text { text-shadow: 0 0 15px rgba(0,242,255,0.6); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        input[type="number"]::-webkit-inner-spin-button { display: none; }
     </style>
 </head>
 <body class="p-6 max-w-lg mx-auto no-scrollbar flex flex-col min-h-screen">
@@ -20,7 +19,7 @@
     <div class="flex justify-between items-start mb-10">
         <div>
             <h1 class="text-4xl font-900 italic tracking-tighter neon-text text-cyan-400 leading-none uppercase">OMNI—DUAL</h1>
-            <p class="text-[9px] uppercase tracking-[0.4em] text-white/30 font-bold mt-2">TERMINAL ACTIVE V62.6</p>
+            <p class="text-[9px] uppercase tracking-[0.4em] text-white/30 font-bold mt-2 text-center">TERMINAL ACTIVE V62.6</p>
         </div>
         <button onclick="toggleSettings()" class="w-12 h-12 glass rounded-2xl flex items-center justify-center active:scale-90 relative z-[200]">
             <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path></svg>
@@ -61,17 +60,6 @@
 
     <button id="goBtn" onclick="runNeuralScan()" class="w-full bg-white text-black font-900 py-6 rounded-[32px] uppercase tracking-[0.3em] text-[11px] active:scale-95 transition-all mb-10">Execute Command</button>
 
-    <div id="outPanel" class="hidden pb-20 no-scrollbar">
-        <h2 id="biasTxt" class="text-[120px] font-900 italic tracking-tighter leading-none text-center mb-8">--</h2>
-        <div class="grid grid-cols-2 gap-4 mb-8">
-            <div class="glass p-6 rounded-[32px] text-center"><p class="text-[8px] text-white/30 uppercase font-black mb-1">Entry</p><span id="eVal" class="text-2xl font-900 tracking-tighter">--</span></div>
-            <div class="glass p-6 rounded-[32px] text-center"><p class="text-[8px] text-cyan-400/50 uppercase font-black mb-1">Lot Size</p><span id="lVal" class="text-2xl font-900 text-cyan-400 tracking-tighter">--</span></div>
-            <div class="glass p-6 rounded-[32px] text-center"><p class="text-[8px] text-rose-500/40 uppercase font-black mb-1">Stop Loss</p><span id="sVal" class="text-2xl font-900 text-rose-500 tracking-tighter">--</span></div>
-            <div class="glass p-6 rounded-[32px] text-center"><p class="text-[8px] text-emerald-400/40 uppercase font-black mb-1">Take Profit</p><span id="tVal" class="text-2xl font-900 text-emerald-400 tracking-tighter">--</span></div>
-        </div>
-        <div id="logicLog" class="glass p-8 rounded-[40px] text-[12px] uppercase italic text-center text-white/50 tracking-tight"></div>
-    </div>
-
     <div id="settingsPanel" class="fixed inset-0 z-[1000] bg-black/95 flex items-center justify-center p-8 hidden">
         <div class="w-full max-w-xs text-center">
             <h3 class="text-3xl font-900 italic tracking-tighter mb-12 uppercase text-cyan-400">Hardware Link</h3>
@@ -82,7 +70,6 @@
                     <input type="number" id="riskIn" class="w-1/2 bg-white/5 border border-white/10 rounded-2xl p-6 text-center font-black outline-none" placeholder="RISK %">
                 </div>
                 <button id="syncBtn" onclick="saveCore(event)" class="w-full bg-white text-black font-900 py-6 rounded-2xl text-[10px] uppercase tracking-[0.4em] mt-8">Sync Core</button>
-                <p onclick="toggleSettings()" class="text-[9px] uppercase tracking-widest text-white/20 mt-6 cursor-pointer">Return</p>
             </div>
         </div>
     </div>
