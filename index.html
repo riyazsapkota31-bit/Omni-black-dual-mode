@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>OMNI—BLACK DUAL | TERMINAL</title>
+    <title>OMNI—DUAL | TERMINAL V62.3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -15,7 +15,6 @@
         .btn-main { background: #fff; color: #000; font-weight: 900; text-transform: uppercase; letter-spacing: 0.4em; padding: 22px; border-radius: 20px; width: 100%; margin-top: 25px; transition: 0.3s; }
         .stat-box { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 18px; text-align: center; }
         
-        /* Precision Switch Styling */
         .mode-switch-container { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 15px 20px; border-radius: 22px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .toggle-btn { position: relative; width: 64px; height: 32px; background: #1a1a1a; border-radius: 16px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .toggle-btn::after { content: ''; position: absolute; width: 24px; height: 24px; background: #fff; border-radius: 50%; top: 4px; left: 4px; transition: 0.4s; }
@@ -35,7 +34,7 @@
             <h1 class="logo-text">OMNI—DUAL</h1>
             <div class="flex items-center gap-2 ml-1 mt-1">
                 <span class="pulse"><span class="pulse-ring"></span><span class="pulse-core"></span></span>
-                <p class="text-[9px] font-black tracking-[0.4em] text-cyan-400 opacity-40 uppercase">Terminal V62.0 Master</p>
+                <p class="text-[9px] font-black tracking-[0.4em] text-cyan-400 opacity-40 uppercase">Terminal V62.3 Ultra</p>
             </div>
         </div>
         <button onclick="toggleSettings()" class="bg-white/5 border border-white/10 w-12 h-12 rounded-xl text-cyan-400"><i class="fa-solid fa-microchip"></i></button>
@@ -90,7 +89,7 @@
             <div class="stat-box border-emerald-500/20"><p class="text-[10px] font-bold text-emerald-400 uppercase mb-1">Take Profit</p><p id="tpVal" class="text-2xl font-bold font-mono text-emerald-400">--</p></div>
         </div>
 
-        <div id="logicSummary" class="p-6 rounded-3xl border border-white/5 bg-white/[0.01] text-[11px] leading-relaxed text-slate-400 uppercase font-medium">
+        <div id="logicSummary" class="p-6 rounded-3xl border border-white/5 bg-white/[0.01] text-[11px] leading-relaxed text-slate-400 uppercase font-medium min-h-[100px]">
             Waiting for strategic confluence...
         </div>
     </div>
@@ -120,8 +119,21 @@
         }
         function toggleSettings() { const m = document.getElementById('settingsModal'); m.classList.toggle('hidden'); m.classList.toggle('flex'); }
         function sync(i) { const f = document.getElementById(`i${i}`).files[0]; if(f) { document.getElementById(`box${i}`).classList.add('has-file'); files[i] = f; } }
-        window.onload = () => { ['kIn', 'bIn', 'rIn'].forEach(id => { const val = localStorage.getItem('omni_' + id); if(val) document.getElementById(id).value = val; }); };
-        function saveConfig(e) { e.preventDefault(); ['kIn', 'bIn', 'rIn'].forEach(id => localStorage.setItem('omni_' + id, document.getElementById(id).value)); alert("System Synced."); toggleSettings(); }
+        
+        // Ensure local storage uses consistent keys with strategies.js
+        window.onload = () => { 
+            ['kIn', 'bIn', 'rIn'].forEach(id => { 
+                const val = localStorage.getItem('omni_' + id); 
+                if(val) document.getElementById(id).value = val; 
+            }); 
+        };
+        
+        function saveConfig(e) { 
+            e.preventDefault(); 
+            ['kIn', 'bIn', 'rIn'].forEach(id => localStorage.setItem('omni_' + id, document.getElementById(id).value)); 
+            alert("System Synced."); 
+            toggleSettings(); 
+        }
     </script>
 </body>
 </html>
