@@ -1,91 +1,91 @@
-/** * OMNI—DUAL | CORE V62.6 REWRITE
- * STATUS: FIXED VERSION LOCK (GEMINI 2.5 FLASH)
+/** * OMNI—DUAL | CORE V62.6
+ * FIX: API VERSION LOCK (2.5 FLASH) & UI COMPRESSION
  */
 
-let engine_files = [null, null, null, null];
+let chart_files = [null, null, null, null];
 
-// Initialization
+// Load local storage on start
 window.onload = () => {
-    document.getElementById('api_in').value = localStorage.getItem('omni_key') || '';
-    document.getElementById('bal_in').value = localStorage.getItem('omni_bal') || '';
-    document.getElementById('risk_in').value = localStorage.getItem('omni_risk') || '';
+    document.getElementById('api_key').value = localStorage.getItem('omni_k') || '';
+    document.getElementById('balance').value = localStorage.getItem('omni_b') || '';
+    document.getElementById('risk').value = localStorage.getItem('omni_r') || '';
 };
 
-function ui_toggle() {
+function toggle_interface() {
     const p = document.getElementById('settingsPanel');
-    const t = document.getElementById('terminalContainer');
+    const t = document.getElementById('terminalUI');
     const isHidden = p.classList.toggle('hidden');
-    // Force terminal off-screen to prevent layout artifacts
+    // Prevents "permeability" and shrinking by removing terminal from flow
     t.style.display = isHidden ? 'flex' : 'none';
 }
 
 function save_config() {
-    localStorage.setItem('omni_key', document.getElementById('api_in').value);
-    localStorage.setItem('omni_bal', document.getElementById('bal_in').value);
-    localStorage.setItem('omni_risk', document.getElementById('risk_in').value);
-    ui_toggle();
+    localStorage.setItem('omni_k', document.getElementById('api_key').value);
+    localStorage.setItem('omni_b', document.getElementById('balance').value);
+    localStorage.setItem('omni_r', document.getElementById('risk').value);
+    toggle_interface();
 }
 
-function trigger_file(i) { document.getElementById(`f${i}`).click(); }
+function trigger_upload(i) { document.getElementById(`f${i}`).click(); }
 
-function load_file(i) {
+function process_upload(i) {
     const file = document.getElementById(`f${i}`).files[0];
     if (file) {
-        engine_files[i] = file;
-        document.getElementById(`label${i}`).classList.add('hidden');
-        document.getElementById(`tick${i}`).classList.remove('hidden');
-        document.getElementById(`box${i}`).classList.add('active-border');
+        chart_files[i] = file;
+        document.getElementById(`l${i}`).classList.add('hidden');
+        document.getElementById(`t${i}`).classList.remove('hidden');
+        document.getElementById(`b${i}`).classList.add('active-border');
     }
 }
 
-async function run_engine() {
-    const key = localStorage.getItem('omni_key');
-    if (!key) return alert("CORE REJECTED: API KEY MISSING.");
+async function run_logic() {
+    const key = localStorage.getItem('omni_k');
+    if (!key) return alert("CORE REJECTED: SYNC API KEY.");
 
     const btn = document.getElementById('execBtn');
     btn.disabled = true;
-    btn.innerText = "NEURAL HANDSHAKE...";
+    btn.innerText = "NEURAL SYNCING...";
 
     try {
-        const image_data = await Promise.all(
-            engine_files.map(f => f ? encode_file(f) : null)
+        const image_parts = await Promise.all(
+            chart_files.map(f => f ? encode_image(f) : null)
         );
 
-        // FORCED 2.5 FLASH ENDPOINT
-        const api_url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
+        // FORCED 2.5 FLASH ENDPOINT: Resolves 400/404 mismatches
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
         
-        const request_body = {
+        const body = {
             contents: [{
                 parts: [
-                    { text: "ACT AS OMNI-DUAL TRADING ENGINE. Analyze SMC/ICT structures for high-probability setups. Output ONLY valid JSON: {'bias': 'BULLISH/BEARISH', 'target': 'Price_Level', 'logic': 'one_sentence'}" },
-                    ...image_data.filter(d => d).map(b64 => ({
+                    { text: "ACT AS OMNI-BLACK SMC ENGINE. Analyze charts for Market Displacement. Output JSON: {'bias':'BUY/SELL','logic':'one_sentence'}" },
+                    ...image_parts.filter(d => d).map(b64 => ({
                         inline_data: { mime_type: "image/jpeg", data: b64 }
                     }))
                 ]
             }]
         };
 
-        const response = await fetch(api_url, {
+        const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(request_body)
+            body: JSON.stringify(body)
         });
 
-        const json = await response.json();
-        if (json.error) throw new Error(`${json.error.status}: ${json.error.message}`);
+        const data = await response.json();
+        if (data.error) throw new Error(`${data.error.status}: ${data.error.message}`);
         
-        const trade = JSON.parse(json.candidates[0].content.parts[0].text);
-        alert(`STRATEGY SYNCED\n\nBIAS: ${trade.bias}\nTARGET: ${trade.target}\nLOGIC: ${trade.logic}`);
+        const result = JSON.parse(data.candidates[0].content.parts[0].text);
+        alert(`TERMINAL SYNCED\n\nBIAS: ${result.bias}\nLOGIC: ${result.logic}`);
 
     } catch (e) {
-        alert("CRITICAL ERROR: " + e.message);
+        alert("ENGINE REJECTED: " + e.message);
     } finally {
         btn.disabled = false;
-        btn.innerText = "EXECUTE COMMAND";
+        btn.innerText = "Execute Command";
     }
 }
 
-function encode_file(file) {
+function encode_image(file) {
     return new Promise((resolve) => {
         const reader = new FileReader();
         reader.onload = () => resolve(reader.result.split(',')[1]);
