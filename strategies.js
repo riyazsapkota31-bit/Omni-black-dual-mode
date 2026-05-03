@@ -1,5 +1,5 @@
 /** * OMNI—BLACK SOVEREIGN V73.0 
- * CORE: 15-WORD CONSTRAINT + SURGICAL COMPRESSION 
+ * FEATURES: SURGICAL COMPRESSION + 15-WORD LOGIC MANDATE 
  */
 
 const state = { 
@@ -10,9 +10,7 @@ const state = {
 
 const ui = {
     toggleSettings: () => document.getElementById('settings').classList.toggle('hidden'),
-    
     trigger: (i) => document.getElementById(`f${i}`).click(),
-    
     save: () => {
         localStorage.setItem('ob_k', document.getElementById('key').value);
         localStorage.setItem('ob_b', document.getElementById('bal').value);
@@ -37,7 +35,7 @@ const engine = {
             document.getElementById(`l${i}`).classList.add('hidden');
             document.getElementById(`ok${i}`).classList.remove('hidden');
             document.getElementById(`box${i}`).classList.add('active-ring');
-            // COMPRESSION: Prevents "ENGINE TIMEOUT" on mobile networks
+            // COMPRESSION: Vital for preventing "ENGINE TIMEOUT"
             state.payloads[i] = await engine.compress(file);
         }
     },
@@ -52,7 +50,6 @@ const engine = {
                 img.onload = () => {
                     const c = document.createElement('canvas');
                     const ctx = c.getContext('2d');
-                    // Resize for low-latency transmission while keeping TA details clear
                     const max = 1024;
                     let w = img.width, h = img.height;
                     if (w > h) { if (w > max) { h *= max / w; w = max; } }
@@ -73,9 +70,9 @@ const engine = {
         const btn = document.getElementById('igniteBtn');
         btn.innerText = "VERIFYING CONFLUENCE...";
 
-        // STRICT MANDATE: Forcing 15-word logic limit in system prompt
+        // STRICT MANDATE: Forcing 15-word logic limit for surgical output
         const prompt = `ACT AS OMNI-BLACK CORE. MODE: ${state.mode.toUpperCase()}. CAPITAL: $${b} RISK: ${r}%. 
-            Analyze 4-chart confluence for SMC/ICT (Liquidity, Displacement, FVG). 
+            Analyze 4-chart confluence for SMC/ICT. 
             STRICT MANDATE: 'logic' field MUST NOT exceed 15 words. 
             JSON ONLY: {"asset":"SYM","bias":"BUY/SELL/WATCHING","entry":"VAL","sl":"VAL","tp":"VAL","lots":"VAL","logic":"15-word max logic"}`;
 
@@ -98,11 +95,10 @@ const engine = {
 
             const result = JSON.parse(data.candidates[0].content.parts[0].text.replace(/```json|```/g, ''));
 
-            // UI MAPPING: Mirroring the Surgical Day Trade Engine layout
             const biasEl = document.getElementById('res-bias');
             biasEl.innerText = result.bias;
             
-            // Color Logic: Emerald for BUY, Red for SELL, White/Opacity for WATCHING
+            // Dynamic UI colors for BUY/SELL/WATCHING
             biasEl.className = `text-[110px] font-900 italic leading-none tracking-tighter uppercase ${
                 result.bias === 'BUY' ? 'text-emerald-400' : result.bias === 'SELL' ? 'text-red-500' : 'text-white/20'
             }`;
@@ -117,8 +113,8 @@ const engine = {
             document.getElementById('result-screen').classList.remove('hidden');
 
         } catch (err) {
-            console.error("Critical Sync Error:", err);
-            alert("SYNC ERROR: Check API Key or Connection Quality");
+            console.error(err);
+            alert("SYNC ERROR: Check API Key or Network Quality"); //
         } finally {
             state.isSyncing = false;
             btn.innerText = "Execute Signal";
@@ -126,7 +122,6 @@ const engine = {
     }
 };
 
-// Initial Load Sync
 window.onload = () => {
     if(localStorage.getItem('ob_k')) {
         document.getElementById('key').value = localStorage.getItem('ob_k');
