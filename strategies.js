@@ -1,6 +1,6 @@
 /** * OMNI—DUAL | NEURAL CORE V62.6
  * DEVELOPER: RIYAZ SAPKOTA
- * FIXED: API REJECTION & MODEL COMPATIBILITY
+ * FIX: MODEL VERSIONING & CHART COMPLEXITY REJECTION
  */
 
 var files = [null, null, null, null];
@@ -51,7 +51,7 @@ async function runNeuralScan() {
     if (!key) return alert("OMNI: OFFLINE. SETUP KEY.");
 
     btn.disabled = true;
-    btn.innerText = "SQUASHING PAYLOAD...";
+    btn.innerText = "PURGING COMPLEXITY...";
 
     try {
         const dataBuffers = await Promise.all(files.map(f => f ? compressChart(f) : Promise.resolve(null)));
@@ -61,7 +61,8 @@ async function runNeuralScan() {
         document.getElementById('outPanel').classList.remove('hidden');
         document.getElementById('outPanel').scrollIntoView({ behavior: 'smooth' });
     } catch (err) {
-        alert("CRITICAL ERROR: API REJECTED. CHECK VERSION");
+        // Updated error logic based on version report
+        alert("CRITICAL ERROR: API REJECTED. CHECK VERSION OR REDUCE CHART COMPLEXITY.");
     } finally {
         btn.disabled = false;
         btn.innerText = "EXECUTE COMMAND";
@@ -77,23 +78,24 @@ async function compressChart(f) {
             img.src = e.target.result;
             img.onload = () => {
                 const cv = document.createElement('canvas');
-                const maxDim = 512; // RESTRAINED TO BYPASS COMPLEXITY ERRORS
+                // FIXED: Lowering dimension to 480px to fix complexity error
+                const maxDim = 480; 
                 const scale = maxDim / Math.max(img.width, img.height);
                 cv.width = img.width * scale; cv.height = img.height * scale;
                 const ctx = cv.getContext('2d');
                 ctx.fillStyle = "#000"; ctx.fillRect(0,0,cv.width,cv.height);
                 ctx.drawImage(img, 0, 0, cv.width, cv.height);
-                resolve(cv.toDataURL('image/jpeg', 0.2)); // AGGRESSIVE COMPRESSION
+                resolve(cv.toDataURL('image/jpeg', 0.2)); 
             };
         };
     });
 }
 
 async function fetchNeuralSignal(key, imgs) {
-    // UPDATED ENDPOINT FOR COMPATIBILITY
+    // UPDATED: Using SUPPORTED gemini-2.5-flash endpoint
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
-    const mode = document.getElementById('stratToggle').checked ? "SURGICAL DAY (CONSERVATIVE)" : "AGGRESSIVE SCALP (HIGH VOL)";
-    const prompt = `[OMNI—V6] STRATEGY: ${mode}. Analyze charts for SMC/ICT. Output JSON: {"bias":"BUY|SELL", "ticker":"SYM", "entry":number, "sl":number, "tp":number, "logic":"short summary", "conf":1-8, "type":"CRYPTO|FOREX"}`;
+    const mode = document.getElementById('stratToggle').checked ? "SURGICAL DAY (15M-1H CONFLUENCE)" : "AGGRESSIVE SCALP (1M LIQUIDITY SWEEPS)";
+    const prompt = `[OMNI—V6] STRATEGY: ${mode}. Focus on SMC Market Displacement. Output ONLY JSON: {"bias":"BUY|SELL", "ticker":"SYM", "entry":number, "sl":number, "tp":number, "logic":"short", "conf":1-8, "type":"CRYPTO|FOREX"}`;
     
     const parts = [{ text: prompt }];
     imgs.forEach(i => { if (i) parts.push({ inline_data: { mime_type: "image/jpeg", data: i.split(',')[1] } }); });
@@ -104,6 +106,7 @@ async function fetchNeuralSignal(key, imgs) {
         body: JSON.stringify({ contents: [{ parts: parts }], generationConfig: { response_mime_type: "application/json", temperature: 0.1 } })
     });
     const json = await res.json();
+    if (!json.candidates) throw new Error("API_REJECTED");
     return JSON.parse(json.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim());
 }
 
