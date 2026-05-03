@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OMNI-BLACK V62.0 | DUAL-MODE</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="terminal-dark">
+    <div id="vision-shield-overlay"></div>
+
+    <div class="main-container">
+        <header class="v62-header">
+            <div class="engine-id">8-CORE V62.0</div>
+            <div class="mode-control">
+                <span class="mode-label">SCALP</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="mode-toggle">
+                    <span class="slider"></span>
+                </label>
+                <span class="mode-label">DAY TRADE</span>
+            </div>
+        </header>
+
+        <div class="signal-core">
+            <div id="engine-state" class="state-indicator">SCOUTING POI</div>
+            <h1 id="signal-header">WAITING...</h1>
+        </div>
+
+        <div class="params-grid">
+            <div class="param-card">
+                <label>ENTRY</label>
+                <span id="entry-price" class="val-blue">0.00</span>
+            </div>
+            <div class="param-card">
+                <label>AUTO-LOT</label>
+                <span id="lot-size" class="val-blue">0.000</span>
+            </div>
+            <div class="param-card">
+                <label>STOP LOSS</label>
+                <span id="sl-price" class="val-red">0.00</span>
+            </div>
+            <div class="param-card">
+                <label>TARGET</label>
+                <span id="tp-price" class="val-green">0.00</span>
+            </div>
+        </div>
+
+        <div class="analysis-footer">
+            <div class="badge-row">
+                <span id="rr-badge" class="badge">RR 1:2.5</span>
+                <span id="conf-badge" class="badge">0/8 CONF</span>
+            </div>
+            <p id="narrative-output">Initializing Surgical Detection Pass...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
