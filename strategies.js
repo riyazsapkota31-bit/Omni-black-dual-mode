@@ -1,5 +1,5 @@
 /** * OMNI—BLACK SOVEREIGN V73.0 
- * CORE FIX: JSON SANITIZATION + SURGICAL COMPRESSION 
+ * CORE FIX: VERSION COMPLIANCE + SANITIZATION 
  */
 
 const state = { 
@@ -35,11 +35,11 @@ const engine = {
             document.getElementById(`l${i}`).classList.add('hidden');
             document.getElementById(`ok${i}`).classList.remove('hidden');
             document.getElementById(`box${i}`).classList.add('active-ring');
-            // COMPRESSION: Prevents "ENGINE TIMEOUT"
             state.payloads[i] = await engine.compress(file);
         }
     },
 
+    // SURGICAL COMPRESSION: Resolves "ENGINE TIMEOUT"
     compress: (file) => {
         return new Promise(res => {
             const r = new FileReader();
@@ -76,6 +76,7 @@ const engine = {
             RETURN RAW JSON ONLY: {"asset":"SYM","bias":"BUY/SELL/WATCHING","entry":"VAL","sl":"VAL","tp":"VAL","lots":"VAL","logic":"short logic"}`;
 
         try {
+            // VERSION COMPLIANCE: Strictly using gemini-2.5-flash
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${k}`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -92,7 +93,7 @@ const engine = {
             const data = await response.json();
             if (data.error) throw new Error(data.error.message);
 
-            // SANITIZATION: Fixes the Sync Error
+            // SANITIZATION: Prevents "SYNC ERROR" by stripping markdown
             const cleanText = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
             const result = JSON.parse(cleanText);
 
