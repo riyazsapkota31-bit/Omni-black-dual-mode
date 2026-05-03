@@ -1,5 +1,5 @@
 /** * OMNI—BLACK SOVEREIGN V73.0 
- * FEATURES: SURGICAL COMPRESSION + 15-WORD LOGIC MANDATE 
+ * SURGICAL COMPRESSION + 15-WORD LOGIC MANDATE 
  */
 
 const state = { 
@@ -35,7 +35,7 @@ const engine = {
             document.getElementById(`l${i}`).classList.add('hidden');
             document.getElementById(`ok${i}`).classList.remove('hidden');
             document.getElementById(`box${i}`).classList.add('active-ring');
-            // COMPRESSION: Prevents "ENGINE TIMEOUT" on mobile networks
+            // SURGICAL COMPRESSION: Stops "ENGINE TIMEOUT" on mobile
             state.payloads[i] = await engine.compress(file);
         }
     },
@@ -68,12 +68,12 @@ const engine = {
 
         state.isSyncing = true;
         const btn = document.getElementById('igniteBtn');
-        btn.innerText = "VERIFYING CONFLUENCE..."; //
+        btn.innerText = "VERIFYING CONFLUENCE...";
 
         const prompt = `ACT AS OMNI-BLACK CORE. MODE: ${state.mode.toUpperCase()}. CAPITAL: $${b} RISK: ${r}%. 
             Analyze 4-chart confluence for SMC/ICT. 
             STRICT MANDATE: 'logic' field MUST NOT exceed 15 words. 
-            JSON ONLY: {"asset":"SYM","bias":"BUY/SELL/WATCHING","entry":"VAL","sl":"VAL","tp":"VAL","lots":"VAL","logic":"15-word logic"}`;
+            JSON ONLY: {"asset":"SYM","bias":"BUY/SELL/WATCHING","entry":"VAL","sl":"VAL","tp":"VAL","lots":"VAL","logic":"15-word max logic"}`;
 
         try {
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${k}`, {
@@ -92,14 +92,14 @@ const engine = {
             const data = await response.json();
             if (data.error) throw new Error(data.error.message);
 
-            // SANITIZATION: Fixes the Sync Error by removing markdown tags
+            // SANITIZATION: Strips markdown to prevent Sync Error
             const cleanText = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
             const result = JSON.parse(cleanText);
 
             const biasEl = document.getElementById('res-bias');
             biasEl.innerText = result.bias;
             
-            // DYNAMIC UI COLOR ENGINE
+            // DYNAMIC COLOR ENGINE
             biasEl.className = `text-[110px] font-900 italic leading-none tracking-tighter uppercase ${
                 result.bias === 'BUY' ? 'text-emerald-400' : result.bias === 'SELL' ? 'text-red-500' : 'text-white/20'
             }`;
@@ -115,10 +115,10 @@ const engine = {
 
         } catch (err) {
             console.error(err);
-            alert("SYNC ERROR: Check API Key or Connection Quality"); //
+            alert("SYNC ERROR: Check API Key or Connection Quality");
         } finally {
             state.isSyncing = false;
-            btn.innerText = "Execute Command";
+            btn.innerText = "Execute Signal";
         }
     }
 };
