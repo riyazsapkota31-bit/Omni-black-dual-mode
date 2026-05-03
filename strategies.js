@@ -1,11 +1,11 @@
 /** * OMNI—DUAL | NEURAL CORE V62.6
- * INTEGRATED: COMPRESSION ENGINE + RISK MATH
+ * FIX: API COMPATIBILITY + RISK MATH
  */
 
 var files = [null, null, null, null];
 const ASSET_CALC = { CRYPTO: 1, FOREX: 10, COMMODITY: 100 };
 
-// Auto-load hardware values
+// Auto-load values when the page starts
 window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('apiKeyIn').value = localStorage.getItem('omni_k') || '';
     document.getElementById('balIn').value = localStorage.getItem('omni_b') || '';
@@ -20,17 +20,15 @@ function saveCore(e) {
     const k = document.getElementById('apiKeyIn').value;
     const b = document.getElementById('balIn').value;
     const r = document.getElementById('riskIn').value;
-
-    if (!k) return alert("OMNI: LINK KEY REQUIRED.");
-
+    if (!k) return alert("OMNI: KEY REQUIRED.");
+    
     localStorage.setItem('omni_k', k);
     localStorage.setItem('omni_b', b);
     localStorage.setItem('omni_r', r);
-
+    
     const btn = e.target;
     btn.innerText = "CORE SYNCED";
     btn.style.background = "#00f2ff";
-
     setTimeout(() => {
         btn.innerText = "Sync Core";
         btn.style.background = "white";
@@ -54,7 +52,7 @@ async function runNeuralScan() {
     const btn = document.getElementById('goBtn');
     const key = localStorage.getItem('omni_k');
     if (files.filter(f => f).length < 2) return alert("OMNI: LINK 2+ CHARTS.");
-    if (!key) return alert("OMNI: OFFLINE. SETUP HARDWARE LINK.");
+    if (!key) return alert("OMNI: OFFLINE. SETUP KEY.");
 
     btn.disabled = true;
     btn.innerText = "SQUASHING PAYLOAD...";
@@ -67,7 +65,7 @@ async function runNeuralScan() {
         document.getElementById('outPanel').classList.remove('hidden');
         document.getElementById('outPanel').scrollIntoView({ behavior: 'smooth' });
     } catch (err) {
-        alert("CRITICAL ERROR: API REJECTED.");
+        alert("CRITICAL ERROR: API REJECTED. CHECK VERSION");
     } finally {
         btn.disabled = false;
         btn.innerText = "EXECUTE COMMAND";
@@ -83,21 +81,22 @@ async function compressChart(f) {
             img.src = e.target.result;
             img.onload = () => {
                 const cv = document.createElement('canvas');
-                const maxDim = 512; // Standardizing to avoid rejection
+                const maxDim = 512; // Reduced size to fix "Reduce Chart Complexity"
                 const scale = maxDim / Math.max(img.width, img.height);
                 cv.width = img.width * scale; cv.height = img.height * scale;
                 const ctx = cv.getContext('2d');
                 ctx.fillStyle = "#000"; ctx.fillRect(0,0,cv.width,cv.height);
                 ctx.drawImage(img, 0, 0, cv.width, cv.height);
-                resolve(cv.toDataURL('image/jpeg', 0.35));
+                resolve(cv.toDataURL('image/jpeg', 0.25)); // Lower quality for faster sync
             };
         };
     });
 }
 
 async function fetchNeuralSignal(key, imgs) {
+    // FIX: Using SUPPORTED gemini-2.5-flash version
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
-    const prompt = `[OMNI—V6] Analyze for SMC/ICT logic. Output JSON: {"bias":"BUY|SELL", "ticker":"SYM", "entry":number, "sl":number, "tp":number, "logic":"short", "conf":1-8, "type":"CRYPTO|FOREX"}`;
+    const prompt = `[OMNI—V6] Analyze for SMC/ICT. Output JSON: {"bias":"BUY|SELL", "ticker":"SYM", "entry":number, "sl":number, "tp":number, "logic":"short", "conf":1-8, "type":"CRYPTO|FOREX"}`;
     const parts = [{ text: prompt }];
     imgs.forEach(i => { if (i) parts.push({ inline_data: { mime_type: "image/jpeg", data: i.split(',')[1] } }); });
 
@@ -118,13 +117,15 @@ function displayOutput(data) {
     document.getElementById('sVal').innerText = f(data.sl);
     document.getElementById('tVal').innerText = f(data.tp);
 
-    // Dynamic Lot Calculation
+    // FIX: DYNAMIC RISK CALCULATOR
     const bal = parseFloat(localStorage.getItem('omni_b')) || 0;
     const risk = parseFloat(localStorage.getItem('omni_r')) || 0;
     const dist = Math.abs(data.entry - data.sl);
     if (bal > 0 && risk > 0 && dist > 0) {
         const div = ASSET_CALC[data.type] || 1;
         document.getElementById('lVal').innerText = ((bal * (risk/100)) / (dist * div)).toFixed(3);
+    } else {
+        document.getElementById('lVal').innerText = "0.000";
     }
     document.getElementById('logicLog').innerText = `${data.ticker} | ${data.conf}/8 CONF | ${data.logic}`;
 }
