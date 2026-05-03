@@ -47,10 +47,22 @@
     </div>
 
     <div class="grid grid-cols-2 gap-4">
-        <div id="box0" class="upload-card" onclick="document.getElementById('i0').click()"><input type="file" id="i0" hidden onchange="sync(0)"><i class="fa-solid fa-compass opacity-20 text-2xl mb-2"></i><p class="text-[10px] font-bold opacity-30 uppercase">1H Bias</p></div>
-        <div id="box1" class="upload-card" onclick="document.getElementById('i1').click()"><input type="file" id="i1" hidden onchange="sync(1)"><i class="fa-solid fa-microscope opacity-20 text-2xl mb-2"></i><p class="text-[10px] font-bold opacity-30 uppercase">15M Structure</p></div>
-        <div id="box2" class="upload-card" onclick="document.getElementById('i2').click()"><input type="file" id="i2" hidden onchange="sync(2)"><i class="fa-solid fa-crosshairs opacity-20 text-2xl mb-2"></i><p class="text-[10px] font-bold opacity-30 uppercase">1M Trigger</p></div>
-        <div id="box3" class="upload-card" onclick="document.getElementById('i3').click()"><input type="file" id="i3" hidden onchange="sync(3)"><i class="fa-solid fa-globe opacity-20 text-2xl mb-2"></i><p class="text-[10px] font-bold opacity-30 uppercase">DXY Data</p></div>
+        <div id="box0" class="upload-card" onclick="document.getElementById('i0').click()">
+            <input type="file" id="i0" hidden accept="image/*" onchange="sync(0)">
+            <i class="fa-solid fa-compass opacity-20 text-2xl mb-2"></i><p class="text-[10px] font-bold opacity-30 uppercase">1H Bias</p>
+        </div>
+        <div id="box1" class="upload-card" onclick="document.getElementById('i1').click()">
+            <input type="file" id="i1" hidden accept="image/*" onchange="sync(1)">
+            <i class="fa-solid fa-microscope opacity-20 text-2xl mb-2"></i><p class="text-[10px] font-bold opacity-30 uppercase">15M Structure</p>
+        </div>
+        <div id="box2" class="upload-card" onclick="document.getElementById('i2').click()">
+            <input type="file" id="i2" hidden accept="image/*" onchange="sync(2)">
+            <i class="fa-solid fa-crosshairs opacity-20 text-2xl mb-2"></i><p class="text-[10px] font-bold opacity-30 uppercase">1M Trigger</p>
+        </div>
+        <div id="box3" class="upload-card" onclick="document.getElementById('i3').click()">
+            <input type="file" id="i3" hidden accept="image/*" onchange="sync(3)">
+            <i class="fa-solid fa-globe opacity-20 text-2xl mb-2"></i><p class="text-[10px] font-bold opacity-30 uppercase">DXY Data</p>
+        </div>
     </div>
 
     <button id="goBtn" onclick="executeSurgicalScan()" class="btn-main">Execute Command</button>
@@ -90,7 +102,13 @@
             document.getElementById('modeTypeLabel').innerText = isDay ? "SURGICAL DAY TRADE ENGINE" : "AGGRESSIVE SCALP ENGINE";
         }
         function toggleSettings() { const m = document.getElementById('settingsModal'); m.classList.toggle('hidden'); m.classList.toggle('flex'); }
-        function sync(i) { const f = document.getElementById(`i${i}`).files[0]; if(f) { document.getElementById(`box${i}`).classList.add('has-file'); files[i] = f; } }
+        function sync(i) { 
+            const f = document.getElementById(`i${i}`).files[0]; 
+            if(f) { 
+                document.getElementById(`box${i}`).classList.add('has-file'); 
+                files[i] = f; 
+            } 
+        }
         function saveConfig(e) { e.preventDefault(); ['kIn', 'bIn', 'rIn'].forEach(id => localStorage.setItem('omni_' + id, document.getElementById(id).value)); toggleSettings(); }
         window.onload = () => { ['kIn', 'bIn', 'rIn'].forEach(id => { const val = localStorage.getItem('omni_' + id); if(val) document.getElementById(id).value = val; }); };
     </script>
