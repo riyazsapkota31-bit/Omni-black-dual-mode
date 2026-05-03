@@ -7,68 +7,67 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap');
-        /* REMOVED FIXED POSITIONING TO ALLOW SCROLLING TO THE BUTTON */
-        body { background: #000; color: #fff; font-family: 'Inter', sans-serif; margin: 0; min-height: 100vh; width: 100vw; }
+        body { background: #000; color: #fff; font-family: 'Inter', sans-serif; margin: 0; min-height: 100vh; width: 100vw; overflow-x: hidden; }
         .glass { background: rgba(255,255,255,0.02); backdrop-filter: blur(40px); border: 1px solid rgba(255,255,255,0.08); }
         .neon-glow { color: #00f2ff; text-shadow: 0 0 25px rgba(0,242,255,0.8); }
         .active-ring { border-color: #00f2ff !important; box-shadow: 0 0 40px rgba(0,242,255,0.15); }
     </style>
 </head>
-<body class="bg-black select-none p-8">
+<body class="bg-black select-none p-5">
 
     <div id="main" class="max-w-lg mx-auto flex flex-col min-h-full">
-        <header class="flex justify-between items-start mb-8">
+        <header class="flex justify-between items-start mb-4 mt-2">
             <div>
-                <h1 class="text-5xl font-900 italic tracking-tighter neon-glow uppercase leading-none">OMNI—BLACK</h1>
-                <p class="text-[9px] uppercase tracking-[0.5em] text-white/30 mt-3 font-black">STABLE CORES: 2.5 FLASH / LITE</p>
+                <h1 class="text-4xl font-900 italic tracking-tighter neon-glow uppercase leading-none">OMNI—BLACK</h1>
+                <p class="text-[8px] uppercase tracking-[0.4em] text-white/30 mt-2 font-black italic">Sovereign 2.5 Dual-Core</p>
             </div>
-            <button onclick="ui.toggleSettings()" class="w-16 h-16 glass rounded-3xl flex items-center justify-center border-white/10 active:scale-90 transition-all">
-                <svg class="w-7 h-7 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+            <button onclick="ui.toggleSettings()" class="w-12 h-12 glass rounded-2xl flex items-center justify-center border-white/10 active:scale-90 transition-all">
+                <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
             </button>
         </header>
 
-        <div class="glass rounded-[40px] p-2 flex mb-8 border-white/5">
-            <button id="btnScalp" onclick="engine.setMode('scalp')" class="flex-1 py-5 rounded-[32px] text-[10px] font-900 uppercase tracking-widest bg-cyan-500 text-black shadow-lg">Scalping</button>
-            <button id="btnDay" onclick="engine.setMode('day')" class="flex-1 py-5 rounded-[32px] text-[10px] font-900 uppercase tracking-widest text-white/20">Day Trading</button>
+        <div class="glass rounded-[25px] p-1.5 flex mb-5 border-white/5">
+            <button id="btnScalp" onclick="engine.setMode('scalp')" class="flex-1 py-3.5 rounded-[20px] text-[9px] font-900 uppercase tracking-widest bg-cyan-500 text-black shadow-lg">Scalp (1M)</button>
+            <button id="btnDay" onclick="engine.setMode('day')" class="flex-1 py-3.5 rounded-[20px] text-[9px] font-900 uppercase tracking-widest text-white/20">Day (1H)</button>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 mb-8">
-            <div id="box0" onclick="ui.trigger(0)" class="glass aspect-square rounded-[45px] flex flex-col items-center justify-center border-dashed border-2 border-white/5 relative active:scale-95 transition-all">
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <div id="box0" onclick="ui.trigger(0)" class="glass aspect-square rounded-[35px] flex flex-col items-center justify-center border-dashed border-2 border-white/5 relative active:scale-95 transition-all">
                 <input type="file" id="f0" accept="image/*" hidden onchange="engine.stage(0)">
-                <span id="l0" class="text-[9px] font-black opacity-20 tracking-[0.4em] uppercase">HTF BIAS</span>
-                <div id="ok0" class="hidden text-cyan-400 font-900 text-xl uppercase italic">LOCKED</div>
+                <span id="l0" class="text-[8px] font-black opacity-20 tracking-[0.3em] uppercase">HTF Structure</span>
+                <div id="ok0" class="hidden text-cyan-400 font-900 text-lg uppercase italic">LOCKED</div>
             </div>
-            <div id="box1" onclick="ui.trigger(1)" class="glass aspect-square rounded-[45px] flex flex-col items-center justify-center border-dashed border-2 border-white/5 relative active:scale-95 transition-all">
+            <div id="box1" onclick="ui.trigger(1)" class="glass aspect-square rounded-[35px] flex flex-col items-center justify-center border-dashed border-2 border-white/5 relative active:scale-95 transition-all">
                 <input type="file" id="f1" accept="image/*" hidden onchange="engine.stage(1)">
-                <span id="l1" class="text-[9px] font-black opacity-20 tracking-[0.4em] uppercase text-center px-2">M15 STRUCTURE</span>
-                <div id="ok1" class="hidden text-cyan-400 font-900 text-xl uppercase italic">LOCKED</div>
+                <span id="l1" class="text-[8px] font-black opacity-20 tracking-[0.3em] uppercase text-center px-4">ITF Bias</span>
+                <div id="ok1" class="hidden text-cyan-400 font-900 text-lg uppercase italic">LOCKED</div>
             </div>
-            <div id="box2" onclick="ui.trigger(2)" class="glass aspect-square rounded-[45px] flex flex-col items-center justify-center border-dashed border-2 border-white/5 relative active:scale-95 transition-all">
+            <div id="box2" onclick="ui.trigger(2)" class="glass aspect-square rounded-[35px] flex flex-col items-center justify-center border-dashed border-2 border-white/5 relative active:scale-95 transition-all">
                 <input type="file" id="f2" accept="image/*" hidden onchange="engine.stage(2)">
-                <span id="l2" class="text-[9px] font-black opacity-20 tracking-[0.4em] uppercase">TRIGGER</span>
-                <div id="ok2" class="hidden text-cyan-400 font-900 text-xl uppercase italic">LOCKED</div>
+                <span id="l2" class="text-[8px] font-black opacity-20 tracking-[0.3em] uppercase">LTF Trigger</span>
+                <div id="ok2" class="hidden text-cyan-400 font-900 text-lg uppercase italic">LOCKED</div>
             </div>
-            <div id="box3" onclick="ui.trigger(3)" class="glass aspect-square rounded-[45px] flex flex-col items-center justify-center border-dashed border-2 border-white/5 relative active:scale-95 transition-all">
+            <div id="box3" onclick="ui.trigger(3)" class="glass aspect-square rounded-[35px] flex flex-col items-center justify-center border-dashed border-2 border-white/5 relative active:scale-95 transition-all">
                 <input type="file" id="f3" accept="image/*" hidden onchange="engine.stage(3)">
-                <span id="l3" class="text-[9px] font-black opacity-20 tracking-[0.4em] uppercase">DXY/NEWS</span>
-                <div id="ok3" class="hidden text-cyan-400 font-900 text-xl uppercase italic">LOCKED</div>
+                <span id="l3" class="text-[8px] font-black opacity-20 tracking-[0.3em] uppercase">DXY / News</span>
+                <div id="ok3" class="hidden text-cyan-400 font-900 text-lg uppercase italic">LOCKED</div>
             </div>
         </div>
 
-        <button id="igniteBtn" onclick="engine.ignite()" class="w-full bg-white text-black font-900 py-8 rounded-[40px] uppercase text-[12px] tracking-[0.6em] shadow-2xl active:bg-cyan-400 active:scale-95 transition-all mb-12">Execute Signal</button>
+        <button id="igniteBtn" onclick="engine.ignite()" class="w-full bg-white text-black font-900 py-6 rounded-[30px] uppercase text-[11px] tracking-[0.5em] shadow-2xl active:scale-95 transition-all mb-10">Execute Signal</button>
     </div>
 
     <div id="settings" class="fixed inset-0 bg-black/95 backdrop-blur-3xl z-50 hidden flex items-center justify-center p-10">
         <div class="w-full max-w-xs flex flex-col items-center">
-            <h2 class="text-3xl font-900 italic tracking-tighter text-cyan-400 mb-12 uppercase">Engine Config</h2>
+            <h2 class="text-3xl font-900 italic tracking-tighter text-cyan-400 mb-10 uppercase">Engine Config</h2>
             <div class="w-full space-y-4">
-                <input type="password" id="key" class="w-full bg-white/5 p-6 rounded-2xl text-cyan-400 text-center font-black outline-none border border-white/10" placeholder="API KEY">
+                <input type="password" id="key" class="w-full bg-white/5 p-5 rounded-2xl text-cyan-400 text-center font-black outline-none border border-white/10" placeholder="API KEY">
                 <div class="flex gap-4">
-                    <input type="number" id="bal" class="w-1/2 bg-white/5 p-6 rounded-2xl text-center font-black outline-none border border-white/10" placeholder="BAL $">
-                    <input type="number" id="risk" class="w-1/2 bg-white/5 p-6 rounded-2xl text-center font-black outline-none border border-white/10" placeholder="RISK %">
+                    <input type="number" id="bal" class="w-1/2 bg-white/5 p-5 rounded-2xl text-center font-black outline-none border border-white/10" placeholder="BAL $">
+                    <input type="number" id="risk" class="w-1/2 bg-white/5 p-5 rounded-2xl text-center font-black outline-none border border-white/10" placeholder="RISK %">
                 </div>
             </div>
-            <button onclick="ui.save()" class="w-full bg-white text-black font-900 py-6 rounded-3xl mt-12 text-[10px] uppercase tracking-widest active:scale-95">Lock Parameters</button>
+            <button onclick="ui.save()" class="w-full bg-white text-black font-900 py-5 rounded-[25px] mt-10 text-[10px] uppercase tracking-widest active:scale-95">Lock Parameters</button>
         </div>
     </div>
 
