@@ -8,52 +8,60 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap');
         body { background: #000; color: white; font-family: 'Inter', sans-serif; overflow: hidden; margin: 0; }
-        .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+        .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); transition: 0.3s ease; }
+        .active-box { border-color: #00f2ff !important; box-shadow: 0 0 30px rgba(0,242,255,0.25); }
         .neon-text { text-shadow: 0 0 15px rgba(0,242,255,0.6); }
-        /* Solid black overlay to kill permeability */
-        #settingsPanel { background-color: #000000 !important; }
     </style>
 </head>
-<body class="p-6 max-w-lg mx-auto flex flex-col min-h-screen">
+<body class="bg-black min-h-screen">
 
-    <div id="terminalContainer">
+    <div id="terminalUI" class="p-6 max-w-lg mx-auto flex flex-col min-h-screen">
         <div class="flex justify-between items-start mb-10">
             <div>
                 <h1 class="text-4xl font-900 italic tracking-tighter neon-text text-cyan-400 leading-none uppercase">OMNI—DUAL</h1>
                 <p class="text-[9px] uppercase tracking-[0.4em] text-white/30 font-bold mt-2">TERMINAL ACTIVE V62.6</p>
             </div>
-            <button onclick="toggleSettings()" class="w-12 h-12 glass rounded-2xl flex items-center justify-center">
+            <button onclick="toggleSettings()" class="w-12 h-12 glass rounded-2xl flex items-center justify-center active:scale-90">
                 <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path></svg>
             </button>
         </div>
 
+        <div class="glass rounded-[32px] p-6 mb-10 flex items-center justify-between">
+            <span class="text-[8px] font-black uppercase text-white/20 tracking-widest">Aggressive Scalp</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="stratToggle" class="sr-only peer">
+                <div class="w-14 h-8 bg-white/5 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-cyan-500"></div>
+            </label>
+            <span class="text-[8px] font-black uppercase text-white/20 tracking-widest">Surgical Day</span>
+        </div>
+
         <div class="grid grid-cols-2 gap-4 mb-10">
-            <div id="c0" onclick="injectGallery(0)" class="glass h-40 rounded-[32px] flex flex-col items-center justify-center relative">
-                <input type="file" id="f0" hidden onchange="handleFile(0)">
+            <div id="c0" onclick="triggerInput(0)" class="glass h-40 rounded-[32px] flex flex-col items-center justify-center relative overflow-hidden">
+                <input type="file" id="f0" hidden onchange="handleUpload(0)">
                 <div id="status0" class="text-[10px] font-black opacity-20">1H BIAS</div>
-                <div id="tick0" class="hidden text-cyan-400">✓</div>
+                <div id="tick0" class="hidden text-cyan-400 font-bold">ACTIVE</div>
             </div>
-            <div id="c1" onclick="injectGallery(1)" class="glass h-40 rounded-[32px] flex flex-col items-center justify-center relative">
-                <input type="file" id="f1" hidden onchange="handleFile(1)">
+            <div id="c1" onclick="triggerInput(1)" class="glass h-40 rounded-[32px] flex flex-col items-center justify-center relative overflow-hidden">
+                <input type="file" id="f1" hidden onchange="handleUpload(1)">
                 <div id="status1" class="text-[10px] font-black opacity-20">15M STRUCT</div>
-                <div id="tick1" class="hidden text-cyan-400">✓</div>
+                <div id="tick1" class="hidden text-cyan-400 font-bold">ACTIVE</div>
             </div>
-            <div id="c2" onclick="injectGallery(2)" class="glass h-40 rounded-[32px] flex flex-col items-center justify-center relative">
-                <input type="file" id="f2" hidden onchange="handleFile(2)">
+            <div id="c2" onclick="triggerInput(2)" class="glass h-40 rounded-[32px] flex flex-col items-center justify-center relative overflow-hidden">
+                <input type="file" id="f2" hidden onchange="handleUpload(2)">
                 <div id="status2" class="text-[10px] font-black opacity-20">1M TRIGGER</div>
-                <div id="tick2" class="hidden text-cyan-400">✓</div>
+                <div id="tick2" class="hidden text-cyan-400 font-bold">ACTIVE</div>
             </div>
-            <div id="c3" onclick="injectGallery(3)" class="glass h-40 rounded-[32px] flex flex-col items-center justify-center relative">
-                <input type="file" id="f3" hidden onchange="handleFile(3)">
+            <div id="c3" onclick="triggerInput(3)" class="glass h-40 rounded-[32px] flex flex-col items-center justify-center relative overflow-hidden">
+                <input type="file" id="f3" hidden onchange="handleUpload(3)">
                 <div id="status3" class="text-[10px] font-black opacity-20">DXY DATA</div>
-                <div id="tick3" class="hidden text-cyan-400">✓</div>
+                <div id="tick3" class="hidden text-cyan-400 font-bold">ACTIVE</div>
             </div>
         </div>
 
-        <button id="goBtn" onclick="runNeuralScan()" class="w-full bg-white text-black font-900 py-6 rounded-[32px] uppercase tracking-[0.3em] text-[11px] mb-10">Execute Command</button>
+        <button id="goBtn" onclick="executeEngine()" class="w-full bg-white text-black font-900 py-6 rounded-[32px] uppercase tracking-[0.3em] text-[11px]">Execute Command</button>
     </div>
 
-    <div id="settingsPanel" class="fixed inset-0 z-[9999] flex items-center justify-center p-8 hidden">
+    <div id="settingsPanel" class="fixed inset-0 z-[9999] bg-black hidden flex items-center justify-center p-8">
         <div class="w-full max-w-xs text-center">
             <h3 class="text-3xl font-900 italic tracking-tighter mb-12 uppercase text-cyan-400">CORE SYNC</h3>
             <div class="space-y-4">
