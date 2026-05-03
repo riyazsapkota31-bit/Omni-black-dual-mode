@@ -1,11 +1,11 @@
 /** * OMNI—DUAL | NEURAL CORE V62.6
- * INTEGRATION: COMPRESSION + SETTINGS + MATH
+ * INTEGRATED: COMPRESSION ENGINE + RISK MATH
  */
 
 var files = [null, null, null, null];
 const ASSET_CALC = { CRYPTO: 1, FOREX: 10, COMMODITY: 100 };
 
-// Initialize data from storage on load
+// Auto-load hardware values
 window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('apiKeyIn').value = localStorage.getItem('omni_k') || '';
     document.getElementById('balIn').value = localStorage.getItem('omni_b') || '';
@@ -21,7 +21,7 @@ function saveCore(e) {
     const b = document.getElementById('balIn').value;
     const r = document.getElementById('riskIn').value;
 
-    if (!k) return alert("OMNI: KEY REQUIRED.");
+    if (!k) return alert("OMNI: LINK KEY REQUIRED.");
 
     localStorage.setItem('omni_k', k);
     localStorage.setItem('omni_b', b);
@@ -67,7 +67,7 @@ async function runNeuralScan() {
         document.getElementById('outPanel').classList.remove('hidden');
         document.getElementById('outPanel').scrollIntoView({ behavior: 'smooth' });
     } catch (err) {
-        alert("CRITICAL ERROR: API REJECTED. CHECK SETTINGS.");
+        alert("CRITICAL ERROR: API REJECTED.");
     } finally {
         btn.disabled = false;
         btn.innerText = "EXECUTE COMMAND";
@@ -83,7 +83,7 @@ async function compressChart(f) {
             img.src = e.target.result;
             img.onload = () => {
                 const cv = document.createElement('canvas');
-                const maxDim = 512; // Compression to avoid rejection
+                const maxDim = 512; // Standardizing to avoid rejection
                 const scale = maxDim / Math.max(img.width, img.height);
                 cv.width = img.width * scale; cv.height = img.height * scale;
                 const ctx = cv.getContext('2d');
@@ -97,7 +97,7 @@ async function compressChart(f) {
 
 async function fetchNeuralSignal(key, imgs) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
-    const prompt = `[OMNI—V6] Analyze SMC/ICT. Output JSON: {"bias":"BUY|SELL", "ticker":"SYM", "entry":number, "sl":number, "tp":number, "logic":"short", "conf":1-8, "type":"CRYPTO|FOREX"}`;
+    const prompt = `[OMNI—V6] Analyze for SMC/ICT logic. Output JSON: {"bias":"BUY|SELL", "ticker":"SYM", "entry":number, "sl":number, "tp":number, "logic":"short", "conf":1-8, "type":"CRYPTO|FOREX"}`;
     const parts = [{ text: prompt }];
     imgs.forEach(i => { if (i) parts.push({ inline_data: { mime_type: "image/jpeg", data: i.split(',')[1] } }); });
 
@@ -118,7 +118,7 @@ function displayOutput(data) {
     document.getElementById('sVal').innerText = f(data.sl);
     document.getElementById('tVal').innerText = f(data.tp);
 
-    // Dynamic Lot Math
+    // Dynamic Lot Calculation
     const bal = parseFloat(localStorage.getItem('omni_b')) || 0;
     const risk = parseFloat(localStorage.getItem('omni_r')) || 0;
     const dist = Math.abs(data.entry - data.sl);
