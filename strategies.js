@@ -1,10 +1,10 @@
-/** * OMNI—DUAL | NEURAL CORE V62.6
- * DEBUGGED: Storage Persistence & Version Mismatch Fix
+/** * OMNI—DUAL | STRATEGIC ENGINE V62.6
+ * FIX: API_REJECTED / CHECK VERSION
  */
 
 let files = [null, null, null, null];
 
-// INITIALIZE STORAGE ON LOAD
+// PERSISTENCE ENGINE: Reloads your Trading Parameters
 window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('apiKeyIn').value = localStorage.getItem('omni_k') || '';
     document.getElementById('balIn').value = localStorage.getItem('omni_b') || '';
@@ -36,20 +36,20 @@ function handleFile(i) {
 async function runNeuralScan() {
     const btn = document.getElementById('goBtn');
     const key = localStorage.getItem('omni_k');
-    if (!key) return alert("CORE ERROR: KEY REQUIRED.");
+    if (!key) return alert("CRITICAL: CORE NOT SYNCED. ADD API_KEY.");
 
     btn.disabled = true;
     btn.innerText = "PURGING COMPLEXITY...";
 
     try {
-        // COMPRESSION PASS: Optimizes charts for API stability
+        // Fix for 400 Bad Request: Optimizes Chart Resolution
         const buffers = await Promise.all(files.map(f => f ? compress(f) : Promise.resolve(null)));
         btn.innerText = "NEURAL HANDSHAKE...";
         const result = await callNeuralEngine(key, buffers.filter(b => b));
         displayOutput(result);
     } catch (err) {
-        // Updated error logic for version verification
-        alert("CRITICAL ERROR: API REJECTED. CHECK VERSION.");
+        alert("VERSION_MISMATCH: RE-SYNC API CORE.");
+        console.error(err);
     } finally {
         btn.disabled = false;
         btn.innerText = "EXECUTE COMMAND";
@@ -65,7 +65,7 @@ async function compress(file) {
             img.src = e.target.result;
             img.onload = () => {
                 const canvas = document.createElement('canvas');
-                const MAX_DIM = 512; 
+                const MAX_DIM = 480; 
                 const scale = MAX_DIM / Math.max(img.width, img.height);
                 canvas.width = img.width * scale;
                 canvas.height = img.height * scale;
@@ -78,17 +78,19 @@ async function compress(file) {
 }
 
 async function callNeuralEngine(key, images) {
-    // FORCE-LOCK TO VERIFIED MODEL ENGINE
+    // FORCE-SYNC: Your account requires gemini-2.5-flash
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
     const mode = document.getElementById('stratToggle').checked ? "SURGICAL DAY" : "AGGRESSIVE SCALP";
-    
-    const parts = [
-        { text: `SMC ANALYSIS: ${mode}. Focus on Liquidity Sweeps and Displacement. Output JSON ONLY: {"bias":"BUY|SELL", "logic":"brief summary"}` }
-    ];
-    
-    images.forEach(img => {
-        parts.push({ inline_data: { mime_type: "image/jpeg", data: img } });
-    });
+    const balance = localStorage.getItem('omni_b') || "1000";
+    const risk = localStorage.getItem('omni_r') || "1";
+
+    const promptText = `ANALYSIS_MODE: SMC ${mode}. 
+    USER_BALANCE: $${balance} | RISK: ${risk}%. 
+    Instructions: Verify 1H Bias, Liquidity Sweeps, and Displacement. 
+    Output JSON ONLY: {"bias":"BUY/SELL", "logic":"[Restored SMC logic string]"}`;
+
+    const parts = [{ text: promptText }];
+    images.forEach(img => { parts.push({ inline_data: { mime_type: "image/jpeg", data: img } }); });
 
     const response = await fetch(url, {
         method: 'POST',
@@ -100,7 +102,7 @@ async function callNeuralEngine(key, images) {
     });
     
     const data = await response.json();
-    if (!data.candidates) throw new Error("VERSION_MISMATCH");
+    if (!data.candidates) throw new Error("API_REJECTED");
     return JSON.parse(data.candidates[0].content.parts[0].text);
 }
 
