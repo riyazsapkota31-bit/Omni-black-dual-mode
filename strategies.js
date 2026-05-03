@@ -1,4 +1,4 @@
-/** * OMNI—BLACK V62.6 | TIMEOUT FIX & INSTITUTIONAL RR LOCK 
+/** * OMNI—BLACK V62.6 | TIMEOUT SUPPRESSION & HIGH-RR LOCK 
  */
 var files = [null, null, null, null];
 const ASSET_SPECS = { CRYPTO: { lotDivisor: 1 }, FOREX: { lotDivisor: 10 }, COMMODITY: { lotDivisor: 100 } };
@@ -16,8 +16,8 @@ async function executeSurgicalScan() {
         const apiKey = localStorage.getItem('omni_kIn');
         if (!apiKey) throw new Error("API Key Missing.");
 
-        // Aggressive Compression: 1000px max side at 0.6 quality to prevent timeouts
-        const compressedImgs = await Promise.all(files.map(f => f ? compressAndEncode(f, 1000, 0.6) : Promise.resolve(null)));
+        // Aggressive Scale-Down: 800px max side to prevent payload-related timeouts
+        const compressedImgs = await Promise.all(files.map(f => f ? compressAndEncode(f, 800, 0.5) : Promise.resolve(null)));
         const signal = await fetchNeuralSignal(apiKey, compressedImgs, isDay);
         
         renderOutput(signal, isDay);
@@ -25,7 +25,8 @@ async function executeSurgicalScan() {
         out.scrollIntoView({ behavior: 'smooth' });
     } catch (err) { 
         console.error(err);
-        alert("CRITICAL ERROR: " + err.message); 
+        // User-facing error handling for the timeout seen in
+        alert(err.name === 'AbortError' ? "TIMEOUT: API took too long. Try fewer charts." : "CRITICAL ERROR: " + err.message); 
     } finally { 
         setButtonState(btn, false, "EXECUTE COMMAND"); 
     }
@@ -52,27 +53,27 @@ async function compressAndEncode(file, maxDim, quality) {
 }
 
 async function fetchNeuralSignal(key, images, isDay) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`;
     const inlineData = images.map(data => data ? { inline_data: { mime_type: "image/jpeg", data: data.split(',')[1] } } : null).filter(Boolean);
 
     const prompt = `[SYSTEM: OMNI-BLACK V62.6 NEURAL TERMINAL]
     TASK: HIGH-RR STRUCTURAL ANALYSIS.
     MODE: ${isDay ? 'SURGICAL DAY TRADING' : 'AGGRESSIVE SCALPING'}.
 
-    STRICT RISK RULES:
-    1. SCALPING (1M/15M): MINIMUM RR 1:2.0+. Tight SL on 1M failure.
-    2. DAY TRADING (1H/15M): MINIMUM RR 1:4.0 to 1:8.0+. SL behind 1H Swing Points.
+    STRICT RISK PARAMETERS:
+    1. SCALPING (AGGRESSIVE): FLOOR RR 1:2.0+. Aim for the highest possible RR by finding 1M FVG/Liquidity sweep entries.
+    2. DAY TRADING (SURGICAL): RANGE RR 1:4.0 to 1:8.0+. Must align with 1H Institutional Bias and major structural draw on liquidity.
     
     MANDATORY: 
-    - Output levels ONLY for Target Asset (Boxes 1-3). 
-    - Use DXY (Box 4) as optional confluence only.
-    - If RR floor isn't met, return "WATCHING".
+    - Provide levels ONLY for the Target Asset found in the first 3 boxes.
+    - Treat Box 4 (DXY) as optional confluence only. 
+    - If market structure does not provide the minimum RR for the selected mode, return "WATCHING".
 
     RETURN JSON ONLY: {"bias":"BUY|SELL|WATCHING", "ticker":"STR", "entry":number, "sl":number, "tp":number, "logic":"string", "conf":1-8, "assetType":"CRYPTO|FOREX"}`;
 
-    // Added AbortController for 30s manual timeout
+    // Fix for: AbortController gives the API 45 seconds before timing out
     const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 30000);
+    const id = setTimeout(() => controller.abort(), 45000);
 
     const response = await fetch(url, {
         method: 'POST',
@@ -93,7 +94,7 @@ async function fetchNeuralSignal(key, images, isDay) {
 function renderOutput(data, isDay) {
     const num = (v) => {
         const val = parseFloat(v);
-        return isNaN(val) ? '--' : val.toFixed(2);
+        return isNaN(val) ? '--' : val.toFixed(4);
     };
     
     document.getElementById('biasTxt').innerText = data.bias || 'WATCHING';
@@ -113,7 +114,7 @@ function renderOutput(data, isDay) {
             <span class="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-[9px] font-black uppercase">${data.conf || 0}/8 CONF</span>
             <span class="bg-white/10 px-3 py-1 rounded-full text-[9px] font-black uppercase">${data.ticker || 'N/A'}</span>
         </div>
-        <p class="text-white/80 font-bold uppercase text-[11px] leading-tight">${data.logic || 'Analysing confluence...'}</p>
+        <p class="text-white/80 font-bold uppercase text-[11px] leading-tight">${data.logic || 'Waiting for high-RR signal...'}</p>
     `;
 
     const bal = parseFloat(localStorage.getItem('omni_bIn')) || 0;
