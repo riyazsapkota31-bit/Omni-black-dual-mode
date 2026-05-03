@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OMNI—DUAL | ACTIVE TERMINAL</title>
+    <title>OMNI—DUAL | V62.6</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap');
@@ -12,14 +12,15 @@
         .active-box { border-color: #00f2ff !important; box-shadow: 0 0 25px rgba(0,242,255,0.2), inset 0 0 15px rgba(0,242,255,0.1); }
         .neon-text { text-shadow: 0 0 15px rgba(0,242,255,0.6); }
         input[type="checkbox"]:checked ~ .dot { transform: translateX(1.5rem); background-color: #00f2ff; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="p-6 max-w-lg mx-auto h-screen flex flex-col">
+<body class="p-6 max-w-lg mx-auto no-scrollbar flex flex-col min-h-screen">
 
     <div class="flex justify-between items-start mb-10">
         <div>
             <h1 class="text-4xl font-900 italic tracking-tighter neon-text text-cyan-400 leading-none">OMNI—DUAL</h1>
-            <p class="text-[9px] uppercase tracking-[0.4em] text-white/30 font-bold mt-2">TERMINAL ACTIVE V62.6</p>
+            <p class="text-[9px] uppercase tracking-[0.4em] text-white/30 font-bold mt-2">ACTIVE TERMINAL V62.6</p>
         </div>
         <button onclick="toggleSettings()" class="w-12 h-12 glass rounded-2xl flex items-center justify-center active:scale-90">
             <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path></svg>
@@ -41,25 +42,25 @@
     <div class="grid grid-cols-2 gap-4 mb-10">
         <div id="c0" onclick="injectGallery(0)" class="glass h-40 rounded-[32px] flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group">
             <input type="file" id="f0" accept="image/*" hidden onchange="handleFile(0)">
-            <svg id="i0" class="w-6 h-6 mb-2 opacity-20 group-hover:text-cyan-400 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.5" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v12a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"></path></svg>
+            <svg id="i0" class="w-6 h-6 mb-2 opacity-20 group-hover:text-cyan-400 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.5" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v12a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"></path></svg>
             <span class="text-[10px] font-black text-white/20 uppercase tracking-tighter">1H Bias</span>
             <img id="p0" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity">
         </div>
         <div id="c1" onclick="injectGallery(1)" class="glass h-40 rounded-[32px] flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group">
             <input type="file" id="f1" accept="image/*" hidden onchange="handleFile(1)">
-            <svg id="i1" class="w-6 h-6 mb-2 opacity-20 group-hover:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.5" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
+            <svg id="i1" class="w-6 h-6 mb-2 opacity-20 group-hover:text-cyan-400 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.5" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
             <span class="text-[10px] font-black text-white/20 uppercase tracking-tighter">15M Struct</span>
             <img id="p1" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity">
         </div>
         <div id="c2" onclick="injectGallery(2)" class="glass h-40 rounded-[32px] flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group">
             <input type="file" id="f2" accept="image/*" hidden onchange="handleFile(2)">
-            <svg id="i2" class="w-6 h-6 mb-2 opacity-20 group-hover:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            <svg id="i2" class="w-6 h-6 mb-2 opacity-20 group-hover:text-cyan-400 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
             <span class="text-[10px] font-black text-white/20 uppercase tracking-tighter">1M Trigger</span>
             <img id="p2" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity">
         </div>
         <div id="c3" onclick="injectGallery(3)" class="glass h-40 rounded-[32px] flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group border-dashed border-cyan-500/20">
             <input type="file" id="f3" accept="image/*" hidden onchange="handleFile(3)">
-            <svg id="i3" class="w-6 h-6 mb-2 text-cyan-400/30 group-hover:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.5" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
+            <svg id="i3" class="w-6 h-6 mb-2 text-cyan-400/30 group-hover:text-cyan-400 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.5" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
             <span class="text-[10px] font-black text-cyan-400/30 uppercase tracking-widest">DXY Data</span>
             <img id="p3" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity">
         </div>
@@ -70,10 +71,10 @@
     <div id="outPanel" class="hidden overflow-y-auto pb-20 no-scrollbar">
         <h2 id="biasTxt" class="text-[120px] font-900 italic tracking-tighter leading-none text-center mb-8">--</h2>
         <div class="grid grid-cols-2 gap-4 mb-8">
-            <div class="glass p-6 rounded-[32px] text-center"><p class="text-[8px] text-white/30 uppercase font-black mb-1 tracking-widest">Entry</p><span id="eVal" class="text-2xl font-900 tracking-tighter">--</span></div>
-            <div class="glass p-6 rounded-[32px] text-center"><p class="text-[8px] text-white/30 uppercase font-black mb-1 tracking-widest text-cyan-400/50">Lot</p><span id="lVal" class="text-2xl font-900 text-cyan-400 tracking-tighter">--</span></div>
-            <div class="glass p-6 rounded-[32px] text-center border-rose-500/10"><p class="text-[8px] text-rose-500/40 uppercase font-black mb-1 tracking-widest">SL</p><span id="sVal" class="text-2xl font-900 text-rose-500 tracking-tighter">--</span></div>
-            <div class="glass p-6 rounded-[32px] text-center border-emerald-500/10"><p class="text-[8px] text-emerald-400/40 uppercase font-black mb-1 tracking-widest">TP</p><span id="tVal" class="text-2xl font-900 text-emerald-400 tracking-tighter">--</span></div>
+            <div class="glass p-6 rounded-[32px] text-center"><p class="text-[8px] text-white/30 uppercase font-black mb-1">Entry</p><span id="eVal" class="text-2xl font-900 tracking-tighter">--</span></div>
+            <div class="glass p-6 rounded-[32px] text-center"><p class="text-[8px] text-cyan-400/50 uppercase font-black mb-1">Lot Size</p><span id="lVal" class="text-2xl font-900 text-cyan-400 tracking-tighter">--</span></div>
+            <div class="glass p-6 rounded-[32px] text-center border-rose-500/10"><p class="text-[8px] text-rose-500/40 uppercase font-black mb-1">Stop Loss</p><span id="sVal" class="text-2xl font-900 text-rose-500 tracking-tighter">--</span></div>
+            <div class="glass p-6 rounded-[32px] text-center border-emerald-500/10"><p class="text-[8px] text-emerald-400/40 uppercase font-black mb-1">Take Profit</p><span id="tVal" class="text-2xl font-900 text-emerald-400 tracking-tighter">--</span></div>
         </div>
         <div id="logicLog" class="glass p-8 rounded-[40px] text-[12px] leading-relaxed text-white/50 uppercase italic font-medium tracking-tight"></div>
     </div>
@@ -94,31 +95,16 @@
 
     <script src="strategies.js"></script>
     <script>
-        var files = [null, null, null, null];
-        function injectGallery(i) { document.getElementById(`f${i}`).click(); }
-        function handleFile(i) {
-            const f = document.getElementById(`f${i}`).files[0];
-            if(!f) return;
-            files[i] = f;
-            const r = new FileReader();
-            r.onload = (e) => {
-                const img = document.getElementById(`p${i}`);
-                const card = document.getElementById(`c${i}`);
-                const icon = document.getElementById(`i${i}`);
-                img.src = e.target.result;
-                img.classList.remove('opacity-0');
-                card.classList.add('active-box');
-                icon.classList.add('hidden');
-            };
-            r.readAsDataURL(f);
-        }
-        function toggleSettings() { document.getElementById('settingsPanel').classList.toggle('hidden'); }
-        function saveCore() {
-            localStorage.setItem('omni_k', document.getElementById('apiKeyIn').value);
-            localStorage.setItem('omni_b', document.getElementById('balIn').value);
-            localStorage.setItem('omni_r', document.getElementById('riskIn').value);
-            toggleSettings();
-        }
+        // BOOT LOADER: Persistent Data Restoration
+        document.addEventListener('DOMContentLoaded', () => {
+            const k = localStorage.getItem('omni_k');
+            const b = localStorage.getItem('omni_b');
+            const r = localStorage.getItem('omni_r');
+            if (k) document.getElementById('apiKeyIn').value = k;
+            if (b) document.getElementById('balIn').value = b;
+            if (r) document.getElementById('riskIn').value = r;
+            console.log("OMNI: HARDWARE SYNC COMPLETE");
+        });
     </script>
 </body>
 </html>
