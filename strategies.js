@@ -1,4 +1,4 @@
-/** * OMNI—BLACK V62.6 | INSTITUTIONAL RR LOCK 
+/** * OMNI—BLACK V62.6 | TIMEOUT FIX & INSTITUTIONAL RR LOCK 
  */
 var files = [null, null, null, null];
 const ASSET_SPECS = { CRYPTO: { lotDivisor: 1 }, FOREX: { lotDivisor: 10 }, COMMODITY: { lotDivisor: 100 } };
@@ -16,7 +16,8 @@ async function executeSurgicalScan() {
         const apiKey = localStorage.getItem('omni_kIn');
         if (!apiKey) throw new Error("API Key Missing.");
 
-        const compressedImgs = await Promise.all(files.map(f => f ? compressAndEncode(f) : Promise.resolve(null)));
+        // Aggressive Compression: 1000px max side at 0.6 quality to prevent timeouts
+        const compressedImgs = await Promise.all(files.map(f => f ? compressAndEncode(f, 1000, 0.6) : Promise.resolve(null)));
         const signal = await fetchNeuralSignal(apiKey, compressedImgs, isDay);
         
         renderOutput(signal, isDay);
@@ -30,7 +31,7 @@ async function executeSurgicalScan() {
     }
 }
 
-async function compressAndEncode(file) {
+async function compressAndEncode(file, maxDim, quality) {
     return new Promise((resolve) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -40,11 +41,11 @@ async function compressAndEncode(file) {
             img.onload = () => {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
-                const scale = 1200 / Math.max(img.width, img.height);
+                const scale = maxDim / Math.max(img.width, img.height);
                 canvas.width = img.width * scale;
                 canvas.height = img.height * scale;
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                resolve(canvas.toDataURL('image/jpeg', 0.7)); 
+                resolve(canvas.toDataURL('image/jpeg', quality)); 
             };
         };
     });
@@ -54,43 +55,39 @@ async function fetchNeuralSignal(key, images, isDay) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
     const inlineData = images.map(data => data ? { inline_data: { mime_type: "image/jpeg", data: data.split(',')[1] } } : null).filter(Boolean);
 
-    // Prompt updated for your 1:2+ Scalping and 1:4-1:8+ Day Trading standards
     const prompt = `[SYSTEM: OMNI-BLACK V62.6 NEURAL TERMINAL]
-    TASK: ANALYSE TARGET ASSET PIXELS FOR HIGH-RR SETUPS.
-    
+    TASK: HIGH-RR STRUCTURAL ANALYSIS.
     MODE: ${isDay ? 'SURGICAL DAY TRADING' : 'AGGRESSIVE SCALPING'}.
 
-    STRICT STRATEGIC RULES:
-    1. IF AGGRESSIVE SCALPING (1M/15M):
-       - RR FLOOR: 1:2.0. The engine must aim for 1:2.0 and above.
-       - INVALIDATION: Stop Loss must be extremely tight, placed at the technical failure point of the 1M structure.
-       - TARGET: Next high-probability liquidity sweep or structural retest.
-
-    2. IF SURGICAL DAY TRADING (1H/15M):
-       - RR FLOOR: 1:4.0. TARGET RANGE: 1:4.0 to 1:8.0+.
-       - LOGIC: Must align with HTF institutional bias. Stop Loss must be placed behind 1H swing points.
-       - TARGET: Major structural expansions or daily draws on liquidity.
-
-    MANDATORY:
-    - If market structure does NOT allow for the minimum RR (1:2 for Scalp, 1:4 for Day), return "WATCHING".
-    - Entry, SL, and TP must be extracted from the Target Asset charts (Boxes 1-3).
-    - DXY (Box 4) is for confluence ONLY. Never provide DXY levels.
+    STRICT RISK RULES:
+    1. SCALPING (1M/15M): MINIMUM RR 1:2.0+. Tight SL on 1M failure.
+    2. DAY TRADING (1H/15M): MINIMUM RR 1:4.0 to 1:8.0+. SL behind 1H Swing Points.
+    
+    MANDATORY: 
+    - Output levels ONLY for Target Asset (Boxes 1-3). 
+    - Use DXY (Box 4) as optional confluence only.
+    - If RR floor isn't met, return "WATCHING".
 
     RETURN JSON ONLY: {"bias":"BUY|SELL|WATCHING", "ticker":"STR", "entry":number, "sl":number, "tp":number, "logic":"string", "conf":1-8, "assetType":"CRYPTO|FOREX"}`;
+
+    // Added AbortController for 30s manual timeout
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), 30000);
 
     const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }, ...inlineData] }],
             generationConfig: { response_mime_type: "application/json", temperature: 0.1 }
         })
     });
+    clearTimeout(id);
 
     const result = await response.json();
     if (!result.candidates?.[0]) throw new Error("Neural Link Timeout.");
-    let rawText = result.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim();
-    return JSON.parse(rawText);
+    return JSON.parse(result.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim());
 }
 
 function renderOutput(data, isDay) {
@@ -116,7 +113,7 @@ function renderOutput(data, isDay) {
             <span class="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-[9px] font-black uppercase">${data.conf || 0}/8 CONF</span>
             <span class="bg-white/10 px-3 py-1 rounded-full text-[9px] font-black uppercase">${data.ticker || 'N/A'}</span>
         </div>
-        <p class="text-white/80 font-bold uppercase text-[11px] leading-tight">${data.logic || 'Analysing structural confluence.'}</p>
+        <p class="text-white/80 font-bold uppercase text-[11px] leading-tight">${data.logic || 'Analysing confluence...'}</p>
     `;
 
     const bal = parseFloat(localStorage.getItem('omni_bIn')) || 0;
