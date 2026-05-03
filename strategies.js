@@ -1,12 +1,11 @@
 /** * OMNI—DUAL | NEURAL CORE V62.6
  * STRATEGY: DUAL-CORE SMC/ICT
- * MODEL: GEMINI-2.5-FLASH
+ * HARDENING: PAYLOAD SQUASHING FOR SURGICAL DAY
  */
 
 var files = [null, null, null, null];
 const ASSET_CALC = { CRYPTO: 1, FOREX: 10, COMMODITY: 100 };
 
-// 1. GALLERY INJECTION
 function injectGallery(i) { document.getElementById(`f${i}`).click(); }
 
 function handleFile(i) {
@@ -26,23 +25,18 @@ function handleFile(i) {
     r.readAsDataURL(f);
 }
 
-// 2. HARDWARE PERSISTENCE
 function toggleSettings() { document.getElementById('settingsPanel').classList.toggle('hidden'); }
 
 function saveCore() {
     const k = document.getElementById('apiKeyIn').value;
     const b = document.getElementById('balIn').value;
     const r = document.getElementById('riskIn').value;
-
     localStorage.setItem('omni_k', k);
     localStorage.setItem('omni_b', b);
     localStorage.setItem('omni_r', r);
-    
     const syncBtn = event.target;
     syncBtn.innerText = "CORE SYNCED";
     syncBtn.style.background = "#00f2ff";
-    syncBtn.style.color = "#000";
-    
     setTimeout(() => {
         syncBtn.innerText = "Sync Core";
         syncBtn.style.background = "white";
@@ -50,7 +44,6 @@ function saveCore() {
     }, 800);
 }
 
-// 3. EXECUTION ENGINE
 async function runNeuralScan() {
     const btn = document.getElementById('goBtn');
     const isDay = document.getElementById('mode-input').checked;
@@ -60,24 +53,25 @@ async function runNeuralScan() {
     if (!key) return alert("OMNI: HARDWARE LINK OFFLINE.");
 
     btn.disabled = true;
-    btn.innerText = "LINKING NEURAL CORE...";
+    btn.innerText = "SQUASHING PAYLOAD...";
 
     try {
         const dataBuffers = await Promise.all(files.map(f => f ? processImg(f) : Promise.resolve(null)));
+        btn.innerText = "NEURAL HANDSHAKE...";
         const signal = await fetchNeuralSignal(key, dataBuffers, isDay);
         
         displayOutput(signal);
         document.getElementById('outPanel').classList.remove('hidden');
         document.getElementById('outPanel').scrollIntoView({ behavior: 'smooth' });
     } catch (err) {
-        alert("CRITICAL ERROR: " + err.message);
+        alert("CRITICAL ERROR: API REJECTED. REDUCE CHART COMPLEXITY.");
     } finally {
         btn.disabled = false;
         btn.innerText = "EXECUTE COMMAND";
     }
 }
 
-// 4. IMAGE PRE-PROCESSING
+// ANTI-REJECTION SQUASHING: Shrinks image to ensure API acceptance
 async function processImg(f) {
     return new Promise((resolve) => {
         const r = new FileReader();
@@ -87,26 +81,25 @@ async function processImg(f) {
             img.src = e.target.result;
             img.onload = () => {
                 const cv = document.createElement('canvas');
-                const s = 1000 / Math.max(img.width, img.height);
+                // Aggressive resize for Day Trading mode charts
+                const s = 750 / Math.max(img.width, img.height);
                 cv.width = img.width * s; cv.height = img.height * s;
                 cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
-                resolve(cv.toDataURL('image/jpeg', 0.6));
+                resolve(cv.toDataURL('image/jpeg', 0.5)); // High compression
             };
         };
     });
 }
 
-// 5. NEURAL API LINK
+// REFINED NEURAL PROMPT: Prevents Day Mode rejection
 async function fetchNeuralSignal(key, imgs, isDay) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
-    
-    // Explicit mode mapping to prevent Day Mode rejection
-    const modeStr = isDay ? "SURGICAL DAY (1H/15M). MIN RR 1:4.0+" : "AGGRESSIVE SCALP (1M/15M). MIN RR 1:2.0+";
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`;
+    const mode = isDay ? "SURGICAL DAY (1H BIAS)" : "AGGRESSIVE SCALP (1M ENTRY)";
 
-    const prompt = `[OMNI—DUAL CORE]
-    MODE: ${modeStr}
-    STRATEGY: SMC/ICT (Market Displacement & Liquidity).
-    JSON_ONLY: {"bias":"BUY|SELL|WATCHING", "ticker":"SYMBOL", "entry":number, "sl":number, "tp":number, "logic":"short_reasoning", "conf":1-8, "type":"CRYPTO|FOREX"}`;
+    const prompt = `[OMNI—DUAL CORE] 
+    MODE: ${mode}.
+    ANALYZE: SMC/ICT (Displacement & Liquidity).
+    JSON: {"bias":"BUY|SELL", "ticker":"SYM", "entry":number, "sl":number, "tp":number, "logic":"short_reasoning", "conf":1-8, "type":"CRYPTO|FOREX"}`;
 
     const parts = [{ text: prompt }];
     imgs.forEach(i => { if (i) parts.push({ inline_data: { mime_type: "image/jpeg", data: i.split(',')[1] } }); });
@@ -120,17 +113,16 @@ async function fetchNeuralSignal(key, imgs, isDay) {
         })
     });
 
-    if (!res.ok) throw new Error("API REJECTED. CHECK HARDWARE LINK.");
+    if (!res.ok) throw new Error("REJECTED");
     const json = await res.json();
     return JSON.parse(json.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim());
 }
 
-// 6. UI RENDER
 function displayOutput(data) {
     const f = (v) => parseFloat(v).toFixed(4);
     const b = document.getElementById('biasTxt');
     b.innerText = data.bias;
-    b.className = `text-[120px] font-900 italic tracking-tighter leading-none text-center mb-8 ${data.bias === 'BUY' ? 'text-emerald-400' : 'text-rose-500'}`;
+    b.className = `text-[120px] font-900 italic leading-none text-center mb-8 ${data.bias === 'BUY' ? 'text-emerald-400' : 'text-rose-500'}`;
     
     document.getElementById('eVal').innerText = f(data.entry);
     document.getElementById('sVal').innerText = f(data.sl);
