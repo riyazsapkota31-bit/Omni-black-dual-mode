@@ -1,6 +1,6 @@
 /** * OMNI—DUAL | NEURAL CORE V62.6
- * STRATEGY: DUAL-CORE SMC/ICT
- * HARDENING: PAYLOAD SQUASHING FOR SURGICAL DAY
+ * MODEL: GEMINI-2.5-FLASH
+ * ANTI-REJECTION: DYNAMIC PAYLOAD SCALING
  */
 
 var files = [null, null, null, null];
@@ -56,7 +56,8 @@ async function runNeuralScan() {
     btn.innerText = "SQUASHING PAYLOAD...";
 
     try {
-        const dataBuffers = await Promise.all(files.map(f => f ? processImg(f) : Promise.resolve(null)));
+        // Dynamic Scaling to prevent API Rejection
+        const dataBuffers = await Promise.all(files.map(f => f ? processImg(f, isDay) : Promise.resolve(null)));
         btn.innerText = "NEURAL HANDSHAKE...";
         const signal = await fetchNeuralSignal(key, dataBuffers, isDay);
         
@@ -71,8 +72,8 @@ async function runNeuralScan() {
     }
 }
 
-// ANTI-REJECTION SQUASHING: Shrinks image to ensure API acceptance
-async function processImg(f) {
+// ANTI-REJECTION: Shrinks pixels and quality for Day Mode
+async function processImg(f, isDay) {
     return new Promise((resolve) => {
         const r = new FileReader();
         r.readAsDataURL(f);
@@ -81,25 +82,26 @@ async function processImg(f) {
             img.src = e.target.result;
             img.onload = () => {
                 const cv = document.createElement('canvas');
-                // Aggressive resize for Day Trading mode charts
-                const s = 750 / Math.max(img.width, img.height);
-                cv.width = img.width * s; cv.height = img.height * s;
+                // Deeper resize for Day mode to fit token limit
+                const maxDim = isDay ? 700 : 900;
+                const scale = maxDim / Math.max(img.width, img.height);
+                cv.width = img.width * scale; cv.height = img.height * scale;
                 cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
-                resolve(cv.toDataURL('image/jpeg', 0.5)); // High compression
+                resolve(cv.toDataURL('image/jpeg', isDay ? 0.4 : 0.6));
             };
         };
     });
 }
 
-// REFINED NEURAL PROMPT: Prevents Day Mode rejection
+// NEURAL PROMPT: Optimized for SMC/ICT
 async function fetchNeuralSignal(key, imgs, isDay) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`;
-    const mode = isDay ? "SURGICAL DAY (1H BIAS)" : "AGGRESSIVE SCALP (1M ENTRY)";
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
+    const mode = isDay ? "SURGICAL DAY (1H/15M)" : "AGGRESSIVE SCALP (1M/15M)";
 
-    const prompt = `[OMNI—DUAL CORE] 
-    MODE: ${mode}.
-    ANALYZE: SMC/ICT (Displacement & Liquidity).
-    JSON: {"bias":"BUY|SELL", "ticker":"SYM", "entry":number, "sl":number, "tp":number, "logic":"short_reasoning", "conf":1-8, "type":"CRYPTO|FOREX"}`;
+    const prompt = `[OMNI—V6]
+    MODE: ${mode}
+    STRATEGY: SMC/ICT (Liquidity Sweeps/Displacement).
+    JSON: {"bias":"BUY|SELL", "ticker":"SYM", "entry":number, "sl":number, "tp":number, "logic":"short", "conf":1-8, "type":"CRYPTO|FOREX"}`;
 
     const parts = [{ text: prompt }];
     imgs.forEach(i => { if (i) parts.push({ inline_data: { mime_type: "image/jpeg", data: i.split(',')[1] } }); });
