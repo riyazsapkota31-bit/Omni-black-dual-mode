@@ -1,5 +1,5 @@
-/** OMNI—BLACK | SOVEREIGN V73.0 
- * PERFORMANCE OPTIMIZED FOR LOW-LATENCY DUAL-CORE SYNC
+/** * OMNI—BLACK SOVEREIGN V73.0 
+ * INTERNAL ENGINE: DUAL-CORE LATENCY OPTIMIZATION
  */
 
 const state = {
@@ -22,9 +22,12 @@ const ui = {
 const engine = {
     setMode: (m) => {
         state.mode = m;
+        // Strict UI state preservation
         const s = document.getElementById('btnScalp'), d = document.getElementById('btnDay');
-        s.className = m === 'scalp' ? "flex-1 py-5 rounded-[32px] text-[10px] font-900 uppercase tracking-widest bg-cyan-500 text-black shadow-lg" : "flex-1 py-5 rounded-[32px] text-[10px] font-900 uppercase tracking-widest text-white/20";
-        d.className = m === 'day' ? "flex-1 py-5 rounded-[32px] text-[10px] font-900 uppercase tracking-widest bg-cyan-500 text-black shadow-lg" : "flex-1 py-5 rounded-[32px] text-[10px] font-900 uppercase tracking-widest text-white/20";
+        const active = "flex-1 py-5 rounded-[32px] text-[10px] font-900 uppercase tracking-widest bg-cyan-500 text-black shadow-lg";
+        const inactive = "flex-1 py-5 rounded-[32px] text-[10px] font-900 uppercase tracking-widest text-white/20";
+        s.className = m === 'scalp' ? active : inactive;
+        d.className = m === 'day' ? active : inactive;
     },
 
     stage: async (i) => {
@@ -34,27 +37,28 @@ const engine = {
             document.getElementById(`ok${i}`).classList.remove('hidden');
             document.getElementById(`box${i}`).classList.add('active-ring');
             
-            // CRITICAL: Compressed for 10x faster upload
+            // COMPRESSION START: Shaves minutes off the upload time
             state.payloads[i] = await engine.compress(file);
         }
     },
 
     compress: (file) => {
         return new Promise(res => {
-            const r = new FileReader();
-            r.readAsDataURL(file);
-            r.onload = (e) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (e) => {
                 const img = new Image();
                 img.src = e.target.result;
                 img.onload = () => {
-                    const c = document.createElement('canvas');
-                    // Shrinking dimensions slightly for speed, keeping high DPI for candle visibility
-                    const scale = 1200 / img.width; 
-                    c.width = 1200; 
-                    c.height = img.height * scale;
-                    const ctx = c.getContext('2d');
-                    ctx.drawImage(img, 0, 0, c.width, c.height);
-                    res(c.toDataURL('image/jpeg', 0.7).split(',')[1]); // 0.7 quality is the "Sweet Spot"
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    // Optimized for technical chart clarity at lower weight
+                    const maxWidth = 1024; 
+                    const scale = maxWidth / img.width;
+                    canvas.width = maxWidth;
+                    canvas.height = img.height * scale;
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    res(canvas.toDataURL('image/jpeg', 0.6).split(',')[1]); 
                 };
             };
         });
@@ -68,30 +72,29 @@ const engine = {
         const btn = document.getElementById('igniteBtn');
         btn.innerText = "VERIFYING CONFLUENCE...";
 
-        const sysPrompt = `ACT AS OMNI-BLACK 8-CORE ENGINE. MODE: ${state.mode.toUpperCase()}. 
-            CAPITAL: $${b} | RISK: ${r}%. Prioritize: Liquidity Sweeps, MSS, FVG.
-            JSON ONLY: {"status":"SIGNAL","asset":"SYM","bias":"LONG/SHORT","entry":"VAL","sl":"VAL","tp":"VAL","lots":"VAL","logic":"Technical proof"}`;
+        const prompt = `CORE: OMNI-BLACK 2.5. MODE: ${state.mode.toUpperCase()}. BAL: $${b}. RISK: ${r}%. Analyze 4-chart confluence for SMC/ICT. Return JSON: {"asset":"SYM","bias":"DIR","entry":"0.0","sl":"0.0","tp":"0.0","logic":"Reason"}`;
 
         try {
-            const payload = {
-                contents: [{
-                    parts: [{ text: sysPrompt }, ...state.payloads.filter(p => p).map(d => ({ inline_data: { mime_type: "image/jpeg", data: d } }))]
-                }]
-            };
-
-            // Using the primary 2.5 Flash core for the initial heavy lift
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${k}`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload)
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [
+                            { text: prompt },
+                            ...state.payloads.filter(p => p).map(data => ({ inline_data: { mime_type: "image/jpeg", data } }))
+                        ]
+                    }]
+                })
             });
 
             const data = await response.json();
-            const result = JSON.parse(data.candidates[0].content.parts[0].text.replace(/```json|```/g, ''));
+            const cleanText = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '');
+            const res = JSON.parse(cleanText);
 
-            alert(`[${result.asset}] ${result.bias}\nENTRY: ${result.entry}\nSL: ${result.sl}\nTP: ${result.tp}\nLOTS: ${result.lots}\n\nLOGIC: ${result.logic}`);
-        } catch (e) {
-            alert("SYNC TIMEOUT: Check internet or API key.");
+            alert(`[${res.asset}] ${res.bias}\nENTRY: ${res.entry}\nSL: ${res.sl}\nTP: ${res.tp}\n\nLOGIC: ${res.logic}`);
+        } catch (err) {
+            alert("ENGINE TIMEOUT: Check API Key or Connection.");
         } finally {
             state.isSyncing = false;
             btn.innerText = "Execute Signal";
@@ -104,6 +107,5 @@ window.onload = () => {
         document.getElementById('key').value = localStorage.getItem('ob_k');
         document.getElementById('bal').value = localStorage.getItem('ob_b');
         document.getElementById('risk').value = localStorage.getItem('ob_r');
-        engine.setMode('scalp');
     }
 };
