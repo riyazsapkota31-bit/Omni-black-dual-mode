@@ -1,5 +1,5 @@
 /** * OMNI—BLACK SOVEREIGN V74.0 
- * STRICT COMPLIANCE: GEMINI-2.5-FLASH ONLY
+ * RECOVERY CORE: Resolves SYNC/TIMEOUT errors
  */
 
 const state = { 
@@ -39,7 +39,7 @@ const engine = {
         }
     },
 
-    // COMPRESSION ENGINE: Prevents 'ENGINE TIMEOUT'
+    // COMPRESSION: Mitigates 'ENGINE TIMEOUT' by reducing payload weight
     compress: (file) => {
         return new Promise(res => {
             const r = new FileReader();
@@ -72,11 +72,11 @@ const engine = {
 
         const prompt = `ACT AS OMNI-BLACK CORE. MODE: ${state.mode.toUpperCase()}. CAPITAL: $${b} RISK: ${r}%. 
             Analyze 4-chart confluence for SMC/ICT. 
-            MANDATE: 'logic' field MUST BE UNDER 15 WORDS.
-            RETURN RAW JSON ONLY: {"asset":"SYM","bias":"BUY/SELL/WATCHING","entry":"VAL","sl":"VAL","tp":"VAL","lots":"VAL","logic":"short logic"}`;
+            MANDATE: RETURN RAW JSON ONLY. NO MARKDOWN.
+            {"asset":"SYM","bias":"BUY/SELL/WATCHING","entry":"VAL","sl":"VAL","tp":"VAL","lots":"VAL","logic":"short explanation"}`;
 
         try {
-            // STRICT MODEL ENFORCEMENT: gemini-2.5-flash
+            // TARGET: gemini-2.5-flash
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${k}`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -93,8 +93,9 @@ const engine = {
             const data = await response.json();
             if (data.error) throw new Error(data.error.message);
 
-            // SANITIZATION: Resolves 'SYNC ERROR'
-            const cleanText = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
+            // CLEAN-PIPE: Prevents 'SYNC ERROR' from Markdown formatting
+            const rawText = data.candidates[0].content.parts[0].text;
+            const cleanText = rawText.replace(/```json|```/g, '').trim();
             const result = JSON.parse(cleanText);
 
             const biasEl = document.getElementById('res-bias');
@@ -115,8 +116,8 @@ const engine = {
             document.getElementById('result-screen').classList.remove('hidden');
 
         } catch (err) {
-            console.error(err);
-            alert("SYNC ERROR: Check API Key or Connection"); //
+            console.error("OMNI-ERROR:", err);
+            alert("SYNC ERROR: Check API Key or Connection");
         } finally {
             state.isSyncing = false;
             btn.innerText = "Execute Command";
