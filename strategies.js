@@ -1,3 +1,6 @@
+/** OMNI—BLACK SOVEREIGN V73.0
+ * CORE: 15-WORD CONSTRAINT + IMAGE COMPRESSION
+ */
 const state = { mode: 'scalp', payloads: [null, null, null, null], isSyncing: false };
 
 const ui = {
@@ -27,6 +30,7 @@ const engine = {
             document.getElementById(`l${i}`).classList.add('hidden');
             document.getElementById(`ok${i}`).classList.remove('hidden');
             document.getElementById(`box${i}`).classList.add('active-ring');
+            // COMPRESSION: Critical for preventing "ENGINE TIMEOUT"
             state.payloads[i] = await engine.compress(file);
         }
     },
@@ -58,9 +62,9 @@ const engine = {
         const btn = document.getElementById('igniteBtn');
         btn.innerText = "VERIFYING CONFLUENCE...";
 
-        const prompt = `CORE: OMNI-BLACK. MODE: ${state.mode.toUpperCase()}. CAPITAL: $${b} RISK: ${r}%. Analyze 4-chart confluence (SMC/ICT). 
+        const prompt = `ACT AS OMNI-BLACK CORE. MODE: ${state.mode.toUpperCase()}. CAPITAL: $${b} RISK: ${r}%. Analyze 4-chart confluence (SMC/ICT). 
         STRICT MANDATE: Logic field MUST be 15 words or fewer. 
-        JSON ONLY: {"asset":"SYM","bias":"BUY/SELL/WATCHING","entry":"VAL","sl":"VAL","tp":"VAL","lots":"VAL","logic":"15-word max logic"}`;
+        JSON ONLY: {"asset":"SYM","bias":"BUY/SELL/WATCHING","entry":"VAL","sl":"VAL","tp":"VAL","lots":"VAL","logic":"Max 15 words"}`;
 
         try {
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${k}`, {
@@ -72,6 +76,7 @@ const engine = {
             const data = await response.json();
             const res = JSON.parse(data.candidates[0].content.parts[0].text.replace(/```json|```/g, ''));
 
+            // UI MAPPING
             const biasEl = document.getElementById('res-bias');
             biasEl.innerText = res.bias;
             biasEl.className = `text-[110px] font-900 italic leading-none tracking-tighter uppercase ${res.bias === 'BUY' ? 'text-emerald-400' : res.bias === 'SELL' ? 'text-red-500' : 'text-white/20'}`;
@@ -83,7 +88,7 @@ const engine = {
             document.getElementById('res-asset').innerText = res.asset;
             document.getElementById('res-logic').innerText = res.logic;
             document.getElementById('result-screen').classList.remove('hidden');
-        } catch (e) { alert("SYNC ERROR"); } finally { state.isSyncing = false; btn.innerText = "Execute Signal"; }
+        } catch (e) { alert("SYNC ERROR: CHECK KEY/CONNECTION"); } finally { state.isSyncing = false; btn.innerText = "Execute Signal"; }
     }
 };
 
