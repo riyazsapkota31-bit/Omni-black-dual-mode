@@ -71,11 +71,11 @@ const engine = {
 
         // ULTRA-SPECIFIC MODE MANDATES
         const mandate = state.mode === 'scalp' 
-            ? `MODE: HIGH-SPEED SCALPING (65-70% Prob Requirement). 
+            ? `MODE: HIGH-SPEED SCALPING (at least 65% Prob Requirement). 
                TARGET: Quick M1 entries on M5 liquidity sweeps. 
                RR: 1:1.5 - 1:3. 
                FAILSAFE: If setup is <60% certain or choppy, return "WATCHING".`
-            : `MODE: INSTITUTIONAL DAY TRADING (75-99% Prob Requirement). 
+            : `MODE: INSTITUTIONAL DAY TRADING (at least 80% Prob Requirement). 
                TARGET: High-confluence H1 BOS + FVG retracements. 
                RR: 1:3.5 minimum. 
                FAILSAFE: Only trigger if setup is "Excellent/ A or A+". Otherwise return "WATCHING".`;
