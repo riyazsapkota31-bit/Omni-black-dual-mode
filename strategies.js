@@ -1,5 +1,5 @@
-/** * OMNI—DUAL SOVEREIGN V75.0 
- * REQ: HIGH-PROBABILITY FILTRATION & NULL-SHIELD
+/** * OMNI—DUAL SOVEREIGN V75.5 
+ * FIX: STRICT DATA NORMALIZATION & UNDEFINED-SHIELD
  */
 
 const state = { 
@@ -49,7 +49,7 @@ const engine = {
                 img.onload = () => {
                     const c = document.createElement('canvas');
                     const ctx = c.getContext('2d');
-                    const max = 1400; // Enhanced for OCR accuracy
+                    const max = 1200; 
                     let w = img.width, h = img.height;
                     if (w > h) { if (w > max) { h *= max / w; w = max; } }
                     else { if (h > max) { w *= max / h; h = max; } }
@@ -67,83 +67,67 @@ const engine = {
 
         state.isSyncing = true;
         const btn = document.getElementById('igniteBtn');
-        btn.innerText = "PARSING INSTITUTIONAL DATA...";
+        btn.innerText = "SCRAPING MARKET DATA...";
 
-        // MODE-SPECIFIC PROBABILITY GATES
         const strategyPersona = state.mode === 'scalp' 
-            ? `[MODE: SCALPER - 65-99% PROBABILITY]
-               Focus: Quick M1 reaction to M5 liquidity sweeps. 
-               Risk: Lowest possible SL. 
-               Failsafe: If setup is <60% or ranging, BIAS must be "WATCHING".`
-            : `[MODE: DAY TRADER - 85-99% PROBABILITY]
-               Focus: A+ Setups only. H1 BOS + FVG retracement. 
-               Requirement: High-confluence institutional footprint. 
-               Failsafe: If setup is not "Excellent/A or A+", BIAS must be "WATCHING".`;
+            ? `MODE: SCALPER (70-80% SURE SCALPS). Speed focus. M1 entry. Low risk.`
+            : `MODE: DAY TRADER (85-99% PROBABILITY). Institutional confluences. A and A+ setups only.`;
 
-        const prompt = `ACT AS OMNI-DUAL SOVEREIGN ENGINE. 
+        const prompt = `ACT AS OMNI-DUAL SOVEREIGN. 
             ACCOUNT: $${b} | RISK: ${r}%.
             ${strategyPersona}
+            
+            1. Extract Price Data. 
+            2. Calculate Lots: ($${b} * (${r}/100)) / (Entry-SL distance).
+            3. If market is sideways/uncertain, BIAS must be "WATCHING".
 
-            DATA TASK:
-            1. Scrape price data from charts.
-            2. CALCULATE LOTS: ($${b} * (${r}/100)) / (Entry - SL price distance).
-            3. If BIAS is "WATCHING", 'logic' must state the wait-level (POI) in 10-15 words.
-
-            STRICT JSON OUTPUT ONLY:
-            {"asset":"SYM","bias":"BUY/SELL/WATCHING","entry":"0.00","sl":"0.00","tp":"0.00","lots":"0.00","logic":"..."}`;
+            STRICT JSON ONLY:
+            {"asset":"SYMBOL","bias":"BUY/SELL/WATCHING","entry":"0.00","sl":"0.00","tp":"0.00","lots":"0.00","logic":"10-word explanation"}`;
 
         try {
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${k}`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
-                    contents: [{
-                        parts: [
-                            { text: prompt },
-                            ...state.payloads.filter(p => p).map(d => ({ inline_data: { mime_type: "image/jpeg", data: d } }))
-                        ]
-                    }],
-                    generationConfig: { temperature: 0.1, topP: 0.1 }
+                    contents: [{ parts: [ { text: prompt }, ...state.payloads.filter(p => p).map(d => ({ inline_data: { mime_type: "image/jpeg", data: d } })) ] }]
                 })
             });
 
             const data = await response.json();
-            if (data.error) throw new Error(data.error.message);
-
             const rawText = data.candidates[0].content.parts[0].text;
-            const result = JSON.parse(rawText.replace(/```json|```/g, '').trim());
+            const parsed = JSON.parse(rawText.replace(/```json|```/g, '').trim());
 
-            // UI UPDATES WITH NULL-SHIELD
-            const biasEl = document.getElementById('res-bias');
-            biasEl.innerText = result.bias || "WATCHING";
-            
-            const colorMap = { 'BUY': 'text-emerald-400', 'SELL': 'text-red-500', 'WATCHING': 'text-amber-400' };
-            biasEl.className = `text-[110px] font-900 italic leading-none tracking-tighter uppercase ${colorMap[result.bias] || 'text-white/20'}`;
+            // THE NORMALIZER (STOPS "UNDEFINED")
+            const result = {
+                asset: parsed.asset || "N/A",
+                bias: parsed.bias || "WATCHING",
+                entry: parsed.entry || "N/A",
+                sl: parsed.sl || "N/A",
+                tp: parsed.tp || "N/A",
+                lots: parsed.lots || "N/A",
+                logic: parsed.logic || "Awaiting structural confirmation."
+            };
 
-            const isWatching = result.bias === 'WATCHING' || !result.entry;
-            document.getElementById('res-entry').innerText = isWatching ? 'N/A' : result.entry;
-            document.getElementById('res-sl').innerText = isWatching ? 'N/A' : result.sl;
-            document.getElementById('res-tp').innerText = isWatching ? 'N/A' : result.tp;
-            document.getElementById('res-lot').innerText = isWatching ? 'N/A' : result.lots;
-            document.getElementById('res-asset').innerText = result.asset || "GOLD";
-            document.getElementById('res-logic').innerText = result.logic || "Awaiting structural confirmation at POI.";
+            const isW = result.bias === 'WATCHING';
+            const colors = { 'BUY': 'text-emerald-400', 'SELL': 'text-red-500', 'WATCHING': 'text-amber-400' };
+
+            document.getElementById('res-bias').innerText = result.bias;
+            document.getElementById('res-bias').className = `text-[110px] font-900 italic leading-none tracking-tighter uppercase ${colors[result.bias]}`;
+            document.getElementById('res-asset').innerText = result.asset;
+            document.getElementById('res-entry').innerText = isW ? 'N/A' : result.entry;
+            document.getElementById('res-sl').innerText = isW ? 'N/A' : result.sl;
+            document.getElementById('res-tp').innerText = isW ? 'N/A' : result.tp;
+            document.getElementById('res-lot').innerText = isW ? 'N/A' : result.lots;
+            document.getElementById('res-logic').innerText = result.logic;
             
             document.getElementById('result-screen').classList.remove('hidden');
 
         } catch (err) {
-            console.error("OMNI-ERROR:", err);
-            alert("CORE SYNC FAILED: Ensure 4 images are uploaded and API key is valid.");
+            console.error(err);
+            alert("SYNC FAILED: Ensure all 4 images are uploaded.");
         } finally {
             state.isSyncing = false;
             btn.innerText = "Execute Command";
         }
-    }
-};
-
-window.onload = () => {
-    if(localStorage.getItem('ob_k')) {
-        document.getElementById('key').value = localStorage.getItem('ob_k');
-        document.getElementById('bal').value = localStorage.getItem('ob_b');
-        document.getElementById('risk').value = localStorage.getItem('ob_r');
     }
 };
