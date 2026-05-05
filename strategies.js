@@ -1,5 +1,5 @@
-/** * OMNI—DUAL SOVEREIGN V74.5 
- * ENGINE: HIGH-PROBABILITY FILTRATION (80% / 95%)
+/** * OMNI—DUAL SOVEREIGN V75.0 
+ * REQ: HIGH-PROBABILITY FILTRATION & NULL-SHIELD
  */
 
 const state = { 
@@ -49,7 +49,7 @@ const engine = {
                 img.onload = () => {
                     const c = document.createElement('canvas');
                     const ctx = c.getContext('2d');
-                    const max = 1200; 
+                    const max = 1400; // Enhanced for OCR accuracy
                     let w = img.width, h = img.height;
                     if (w > h) { if (w > max) { h *= max / w; w = max; } }
                     else { if (h > max) { w *= max / h; h = max; } }
@@ -67,30 +67,30 @@ const engine = {
 
         state.isSyncing = true;
         const btn = document.getElementById('igniteBtn');
-        btn.innerText = "SYNCHRONIZING PROBABILITY...";
+        btn.innerText = "PARSING INSTITUTIONAL DATA...";
 
-        // ULTRA-SPECIFIC MODE MANDATES
-        const mandate = state.mode === 'scalp' 
-            ? `MODE: HIGH-SPEED SCALPING (at least 65% Prob Requirement). 
-               TARGET: Quick M1 entries on M5 liquidity sweeps. 
-               RR: 1:1.5 - 1:3. 
-               FAILSAFE: If setup is <60% certain or choppy, return "WATCHING".`
-            : `MODE: INSTITUTIONAL DAY TRADING (at least 80% Prob Requirement). 
-               TARGET: High-confluence H1 BOS + FVG retracements. 
-               RR: 1:3.5 minimum. 
-               FAILSAFE: Only trigger if setup is "Excellent/ A or A+". Otherwise return "WATCHING".`;
+        // MODE-SPECIFIC PROBABILITY GATES
+        const strategyPersona = state.mode === 'scalp' 
+            ? `[MODE: SCALPER - 65-99% PROBABILITY]
+               Focus: Quick M1 reaction to M5 liquidity sweeps. 
+               Risk: Lowest possible SL. 
+               Failsafe: If setup is <60% or ranging, BIAS must be "WATCHING".`
+            : `[MODE: DAY TRADER - 85-99% PROBABILITY]
+               Focus: A+ Setups only. H1 BOS + FVG retracement. 
+               Requirement: High-confluence institutional footprint. 
+               Failsafe: If setup is not "Excellent/A or A+", BIAS must be "WATCHING".`;
 
-        const prompt = `ACT AS OMNI-DUAL SOVEREIGN CORE. 
+        const prompt = `ACT AS OMNI-DUAL SOVEREIGN ENGINE. 
             ACCOUNT: $${b} | RISK: ${r}%.
-            ${mandate}
+            ${strategyPersona}
 
-            CRITICAL DATA PARSING:
-            1. Extract exact price numbers from the 4 charts provided.
-            2. CALCULATE LOTS: ($${b} * (${r}/100)) / (Entry Price - StopLoss Price). Ensure decimals are correct for Asset class.
-            3. WAIT SIGNAL: If "WATCHING", logic must describe the specific POI to wait for (max 15 words).
+            DATA TASK:
+            1. Scrape price data from charts.
+            2. CALCULATE LOTS: ($${b} * (${r}/100)) / (Entry - SL price distance).
+            3. If BIAS is "WATCHING", 'logic' must state the wait-level (POI) in 10-15 words.
 
-            MANDATE: RETURN RAW JSON ONLY.
-            {"asset":"SYM","bias":"BUY/SELL/WATCHING","entry":"VAL","sl":"VAL","tp":"VAL","lots":"VAL","logic":"short explanation"}`;
+            STRICT JSON OUTPUT ONLY:
+            {"asset":"SYM","bias":"BUY/SELL/WATCHING","entry":"0.00","sl":"0.00","tp":"0.00","lots":"0.00","logic":"..."}`;
 
         try {
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${k}`, {
@@ -103,7 +103,7 @@ const engine = {
                             ...state.payloads.filter(p => p).map(d => ({ inline_data: { mime_type: "image/jpeg", data: d } }))
                         ]
                     }],
-                    generationConfig: { temperature: 0.1, topP: 0.1 } // Forced precision
+                    generationConfig: { temperature: 0.1, topP: 0.1 }
                 })
             });
 
@@ -113,25 +113,26 @@ const engine = {
             const rawText = data.candidates[0].content.parts[0].text;
             const result = JSON.parse(rawText.replace(/```json|```/g, '').trim());
 
+            // UI UPDATES WITH NULL-SHIELD
             const biasEl = document.getElementById('res-bias');
-            biasEl.innerText = result.bias;
+            biasEl.innerText = result.bias || "WATCHING";
             
-            const colors = { 'BUY': 'text-emerald-400', 'SELL': 'text-red-500', 'WATCHING': 'text-amber-400' };
-            biasEl.className = `text-[110px] font-900 italic leading-none tracking-tighter uppercase ${colors[result.bias] || 'text-white/20'}`;
+            const colorMap = { 'BUY': 'text-emerald-400', 'SELL': 'text-red-500', 'WATCHING': 'text-amber-400' };
+            biasEl.className = `text-[110px] font-900 italic leading-none tracking-tighter uppercase ${colorMap[result.bias] || 'text-white/20'}`;
 
-            const isW = result.bias === 'WATCHING';
-            document.getElementById('res-entry').innerText = isW ? "N/A" : result.entry;
-            document.getElementById('res-sl').innerText = isW ? "N/A" : result.sl;
-            document.getElementById('res-tp').innerText = isW ? "N/A" : result.tp;
-            document.getElementById('res-lot').innerText = isW ? "N/A" : result.lots;
-            document.getElementById('res-asset').innerText = result.asset;
-            document.getElementById('res-logic').innerText = result.logic;
+            const isWatching = result.bias === 'WATCHING' || !result.entry;
+            document.getElementById('res-entry').innerText = isWatching ? 'N/A' : result.entry;
+            document.getElementById('res-sl').innerText = isWatching ? 'N/A' : result.sl;
+            document.getElementById('res-tp').innerText = isWatching ? 'N/A' : result.tp;
+            document.getElementById('res-lot').innerText = isWatching ? 'N/A' : result.lots;
+            document.getElementById('res-asset').innerText = result.asset || "GOLD";
+            document.getElementById('res-logic').innerText = result.logic || "Awaiting structural confirmation at POI.";
             
             document.getElementById('result-screen').classList.remove('hidden');
 
         } catch (err) {
-            console.error("CORE ERROR:", err);
-            alert("SYNC ERROR: Check API key or Image Clarity.");
+            console.error("OMNI-ERROR:", err);
+            alert("CORE SYNC FAILED: Ensure 4 images are uploaded and API key is valid.");
         } finally {
             state.isSyncing = false;
             btn.innerText = "Execute Command";
