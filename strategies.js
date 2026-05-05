@@ -1,5 +1,5 @@
-/** * OMNI—BLACK SOVEREIGN V74.0 
- * RECOVERY CORE: Resolves SYNC/TIMEOUT errors
+/** * OMNI—DUAL SOVEREIGN V74.2 
+ * CORE UPDATE: STRATEGY SEGREGATION & RR ENFORCEMENT
  */
 
 const state = { 
@@ -39,7 +39,6 @@ const engine = {
         }
     },
 
-    // COMPRESSION: Mitigates 'ENGINE TIMEOUT' by reducing payload weight
     compress: (file) => {
         return new Promise(res => {
             const r = new FileReader();
@@ -68,15 +67,20 @@ const engine = {
 
         state.isSyncing = true;
         const btn = document.getElementById('igniteBtn');
-        btn.innerText = "VERIFYING CONFLUENCE..."; //
+        btn.innerText = "RUNNING MULTI-CORE ANALYSIS...";
 
-        const prompt = `ACT AS OMNI-BLACK CORE. MODE: ${state.mode.toUpperCase()}. CAPITAL: $${b} RISK: ${r}%. 
-            Analyze 4-chart confluence for SMC/ICT. 
-            MANDATE: RETURN RAW JSON ONLY. NO MARKDOWN.
+        const strategyMandate = state.mode === 'scalp' 
+            ? `MODE: SCALPING. Focus on M1/M5 entries via M15 bias. RR: 1:1.5 to 1:3. Use SMC Liquidity/FVG.` 
+            : `MODE: DAY TRADING. Focus on H1 bias/M15 triggers. RR: 1:3.5 minimum. Use ICT Power of 3.`;
+
+        const prompt = `ACT AS OMNI-DUAL CORE AI. CAPITAL: $${b} RISK: ${r}%.
+            ${strategyMandate}
+            RULE 1: Analyze actual price levels from images. Do not hallucinate.
+            RULE 2: If market is sideways or risky, set bias to "WATCHING" and provide a POI level in logic.
+            RULE 3: Return RAW JSON only.
             {"asset":"SYM","bias":"BUY/SELL/WATCHING","entry":"VAL","sl":"VAL","tp":"VAL","lots":"VAL","logic":"short explanation"}`;
 
         try {
-            // TARGET: gemini-2.5-flash-lite
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${k}`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -86,25 +90,22 @@ const engine = {
                             { text: prompt },
                             ...state.payloads.filter(p => p).map(d => ({ inline_data: { mime_type: "image/jpeg", data: d } }))
                         ]
-                    }]
+                    }],
+                    generationConfig: { temperature: 0.1 }
                 })
             });
 
             const data = await response.json();
             if (data.error) throw new Error(data.error.message);
 
-            // CLEAN-PIPE: Prevents 'SYNC ERROR' from Markdown formatting
             const rawText = data.candidates[0].content.parts[0].text;
-            const cleanText = rawText.replace(/```json|```/g, '').trim();
-            const result = JSON.parse(cleanText);
+            const result = JSON.parse(rawText.replace(/```json|```/g, '').trim());
 
             const biasEl = document.getElementById('res-bias');
             biasEl.innerText = result.bias;
             
-            // DYNAMIC COLOR ENGINE
-            biasEl.className = `text-[110px] font-900 italic leading-none tracking-tighter uppercase ${
-                result.bias === 'BUY' ? 'text-emerald-400' : result.bias === 'SELL' ? 'text-red-500' : 'text-white/20'
-            }`;
+            const colors = { 'BUY': 'text-emerald-400', 'SELL': 'text-red-500', 'WATCHING': 'text-amber-400' };
+            biasEl.className = `text-[110px] font-900 italic leading-none tracking-tighter uppercase ${colors[result.bias] || 'text-white/20'}`;
 
             document.getElementById('res-entry').innerText = result.entry;
             document.getElementById('res-sl').innerText = result.sl;
@@ -117,7 +118,7 @@ const engine = {
 
         } catch (err) {
             console.error("OMNI-ERROR:", err);
-            alert("SYNC ERROR: Check API Key or Connection");
+            alert("SYNC ERROR: Check API Key or Connections");
         } finally {
             state.isSyncing = false;
             btn.innerText = "Execute Command";
