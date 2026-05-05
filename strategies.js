@@ -1,5 +1,5 @@
-/** * OMNI—DUAL SOVEREIGN V74.2 
- * CORE UPDATE: STRATEGY SEGREGATION & RR ENFORCEMENT
+/** * OMNI—DUAL SOVEREIGN V74.5 
+ * ENGINE: HIGH-PROBABILITY FILTRATION (80% / 95%)
  */
 
 const state = { 
@@ -23,8 +23,8 @@ const engine = {
     setMode: (m) => {
         state.mode = m;
         const s = document.getElementById('btnScalp'), d = document.getElementById('btnDay');
-        const active = "flex-1 py-3.5 rounded-[20px] text-[9px] font-900 uppercase tracking-widest bg-cyan-500 text-black shadow-lg";
-        const inactive = "flex-1 py-3.5 rounded-[20px] text-[9px] font-900 uppercase tracking-widest text-white/20";
+        const active = "flex-1 py-3.5 rounded-[20px] text-[9px] font-900 uppercase tracking-widest bg-cyan-500 text-black shadow-lg transition-all";
+        const inactive = "flex-1 py-3.5 rounded-[20px] text-[9px] font-900 uppercase tracking-widest text-white/20 hover:text-white/40 transition-all";
         s.className = m === 'scalp' ? active : inactive;
         d.className = m === 'day' ? active : inactive;
     },
@@ -49,13 +49,13 @@ const engine = {
                 img.onload = () => {
                     const c = document.createElement('canvas');
                     const ctx = c.getContext('2d');
-                    const max = 1024;
+                    const max = 1200; 
                     let w = img.width, h = img.height;
                     if (w > h) { if (w > max) { h *= max / w; w = max; } }
                     else { if (h > max) { w *= max / h; h = max; } }
                     c.width = w; c.height = h;
                     ctx.drawImage(img, 0, 0, w, h);
-                    res(c.toDataURL('image/jpeg', 0.6).split(',')[1]);
+                    res(c.toDataURL('image/jpeg', 0.8).split(',')[1]);
                 };
             };
         });
@@ -67,17 +67,29 @@ const engine = {
 
         state.isSyncing = true;
         const btn = document.getElementById('igniteBtn');
-        btn.innerText = "RUNNING MULTI-CORE ANALYSIS...";
+        btn.innerText = "SYNCHRONIZING PROBABILITY...";
 
-        const strategyMandate = state.mode === 'scalp' 
-            ? `MODE: SCALPING. Focus on M1/M5 entries via M15 bias. RR: 1:1.5 to 1:3. Use SMC Liquidity/FVG.` 
-            : `MODE: DAY TRADING. Focus on H1 bias/M15 triggers. RR: 1:3.5 minimum. Use ICT Power of 3.`;
+        // ULTRA-SPECIFIC MODE MANDATES
+        const mandate = state.mode === 'scalp' 
+            ? `MODE: HIGH-SPEED SCALPING (65-70% Prob Requirement). 
+               TARGET: Quick M1 entries on M5 liquidity sweeps. 
+               RR: 1:1.5 - 1:3. 
+               FAILSAFE: If setup is <60% certain or choppy, return "WATCHING".`
+            : `MODE: INSTITUTIONAL DAY TRADING (75-99% Prob Requirement). 
+               TARGET: High-confluence H1 BOS + FVG retracements. 
+               RR: 1:3.5 minimum. 
+               FAILSAFE: Only trigger if setup is "Excellent/ A or A+". Otherwise return "WATCHING".`;
 
-        const prompt = `ACT AS OMNI-DUAL CORE AI. CAPITAL: $${b} RISK: ${r}%.
-            ${strategyMandate}
-            RULE 1: Analyze actual price levels from images. Do not hallucinate.
-            RULE 2: If market is sideways or risky, set bias to "WATCHING" and provide a POI level in logic.
-            RULE 3: Return RAW JSON only.
+        const prompt = `ACT AS OMNI-DUAL SOVEREIGN CORE. 
+            ACCOUNT: $${b} | RISK: ${r}%.
+            ${mandate}
+
+            CRITICAL DATA PARSING:
+            1. Extract exact price numbers from the 4 charts provided.
+            2. CALCULATE LOTS: ($${b} * (${r}/100)) / (Entry Price - StopLoss Price). Ensure decimals are correct for Asset class.
+            3. WAIT SIGNAL: If "WATCHING", logic must describe the specific POI to wait for (max 15 words).
+
+            MANDATE: RETURN RAW JSON ONLY.
             {"asset":"SYM","bias":"BUY/SELL/WATCHING","entry":"VAL","sl":"VAL","tp":"VAL","lots":"VAL","logic":"short explanation"}`;
 
         try {
@@ -91,7 +103,7 @@ const engine = {
                             ...state.payloads.filter(p => p).map(d => ({ inline_data: { mime_type: "image/jpeg", data: d } }))
                         ]
                     }],
-                    generationConfig: { temperature: 0.1 }
+                    generationConfig: { temperature: 0.1, topP: 0.1 } // Forced precision
                 })
             });
 
@@ -107,18 +119,19 @@ const engine = {
             const colors = { 'BUY': 'text-emerald-400', 'SELL': 'text-red-500', 'WATCHING': 'text-amber-400' };
             biasEl.className = `text-[110px] font-900 italic leading-none tracking-tighter uppercase ${colors[result.bias] || 'text-white/20'}`;
 
-            document.getElementById('res-entry').innerText = result.entry;
-            document.getElementById('res-sl').innerText = result.sl;
-            document.getElementById('res-tp').innerText = result.tp;
-            document.getElementById('res-lot').innerText = result.lots;
+            const isW = result.bias === 'WATCHING';
+            document.getElementById('res-entry').innerText = isW ? "N/A" : result.entry;
+            document.getElementById('res-sl').innerText = isW ? "N/A" : result.sl;
+            document.getElementById('res-tp').innerText = isW ? "N/A" : result.tp;
+            document.getElementById('res-lot').innerText = isW ? "N/A" : result.lots;
             document.getElementById('res-asset').innerText = result.asset;
             document.getElementById('res-logic').innerText = result.logic;
             
             document.getElementById('result-screen').classList.remove('hidden');
 
         } catch (err) {
-            console.error("OMNI-ERROR:", err);
-            alert("SYNC ERROR: Check API Key or Connections");
+            console.error("CORE ERROR:", err);
+            alert("SYNC ERROR: Check API key or Image Clarity.");
         } finally {
             state.isSyncing = false;
             btn.innerText = "Execute Command";
