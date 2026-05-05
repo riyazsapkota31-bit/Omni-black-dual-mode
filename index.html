@@ -33,22 +33,22 @@
     <div class="grid grid-cols-2 gap-4 mb-8">
         <div id="box0" onclick="ui.trigger(0)" class="aspect-square rounded-[40px] border-2 border-dashed border-cyan-500/20 flex flex-col items-center justify-center bg-white/5 relative active:bg-white/10 transition-all">
             <input type="file" id="f0" class="hidden" accept="image/*" onchange="engine.stage(0)">
-            <span id="l0" class="text-[9px] font-900 text-cyan-400/40 uppercase tracking-widest text-center px-4">HTF Context<br>(H4/H1)</span>
+            <span id="l0" class="text-[9px] font-900 text-cyan-400/40 uppercase tracking-widest text-center px-4">HTF Context</span>
             <span id="ok0" class="hidden text-cyan-400 text-3xl font-900">✓</span>
         </div>
         <div id="box1" onclick="ui.trigger(1)" class="aspect-square rounded-[40px] border-2 border-dashed border-cyan-500/20 flex flex-col items-center justify-center bg-white/5 relative active:bg-white/10 transition-all">
             <input type="file" id="f1" class="hidden" accept="image/*" onchange="engine.stage(1)">
-            <span id="l1" class="text-[9px] font-900 text-cyan-400/40 uppercase tracking-widest text-center px-4">Structure<br>(M15)</span>
+            <span id="l1" class="text-[9px] font-900 text-cyan-400/40 uppercase tracking-widest text-center px-4">Structure</span>
             <span id="ok1" class="hidden text-cyan-400 text-3xl font-900">✓</span>
         </div>
         <div id="box2" onclick="ui.trigger(2)" class="aspect-square rounded-[40px] border-2 border-dashed border-cyan-500/20 flex flex-col items-center justify-center bg-white/5 relative active:bg-white/10 transition-all">
             <input type="file" id="f2" class="hidden" accept="image/*" onchange="engine.stage(2)">
-            <span id="l2" class="text-[9px] font-900 text-cyan-400/40 uppercase tracking-widest text-center px-4">Entry Zone<br>(M5/M1)</span>
+            <span id="l2" class="text-[9px] font-900 text-cyan-400/40 uppercase tracking-widest text-center px-4">Trigger</span>
             <span id="ok2" class="hidden text-cyan-400 text-3xl font-900">✓</span>
         </div>
         <div id="box3" onclick="ui.trigger(3)" class="aspect-square rounded-[40px] border-2 border-dashed border-cyan-500/20 flex flex-col items-center justify-center bg-white/5 relative active:bg-white/10 transition-all">
             <input type="file" id="f3" class="hidden" accept="image/*" onchange="engine.stage(3)">
-            <span id="l3" class="text-[9px] font-900 text-cyan-400/40 uppercase tracking-widest text-center px-4">News/DXY<br>(Analysis)</span>
+            <span id="l3" class="text-[9px] font-900 text-cyan-400/40 uppercase tracking-widest text-center px-4">News/DXY</span>
             <span id="ok3" class="hidden text-cyan-400 text-3xl font-900">✓</span>
         </div>
     </div>
@@ -56,16 +56,6 @@
     <button id="igniteBtn" onclick="engine.ignite()" class="w-full py-6 rounded-[35px] bg-white text-black font-900 text-[11px] uppercase tracking-[0.3em] shadow-lg active:scale-95 transition-transform">
         Execute Command
     </button>
-
-    <div id="settings" class="fixed inset-0 bg-black/95 z-50 p-8 hidden">
-        <h2 class="text-2xl font-900 uppercase italic mb-8">Core Config</h2>
-        <input id="key" type="password" placeholder="GEMINI API KEY" class="w-full bg-white/5 p-4 rounded-2xl mb-4 border border-white/10 text-[10px]">
-        <div class="flex gap-4 mb-4">
-            <input id="bal" type="number" placeholder="BALANCE (USD)" class="flex-1 bg-white/5 p-4 rounded-2xl border border-white/10 text-[10px]">
-            <input id="risk" type="number" placeholder="RISK %" class="w-24 bg-white/5 p-4 rounded-2xl border border-white/10 text-[10px]">
-        </div>
-        <button onclick="ui.save()" class="w-full py-4 bg-cyan-500 text-black font-900 rounded-2xl uppercase text-[10px]">Save & Lock</button>
-    </div>
 
     <div id="result-screen" class="fixed inset-0 bg-black z-[60] p-6 hidden overflow-y-auto hide-scroll">
         <button onclick="document.getElementById('result-screen').classList.add('hidden')" class="mb-8 p-3 bg-white/10 rounded-2xl uppercase text-[8px] font-900 tracking-widest">← Back</button>
@@ -97,6 +87,16 @@
         <div class="bg-white/5 p-8 rounded-[40px] border border-white/5">
             <p id="res-logic" class="text-[11px] leading-relaxed font-400 text-white/70 italic"></p>
         </div>
+    </div>
+
+    <div id="settings" class="fixed inset-0 bg-black/95 z-50 p-8 hidden">
+        <h2 class="text-2xl font-900 uppercase italic mb-8">Core Config</h2>
+        <input id="key" type="password" placeholder="GEMINI API KEY" class="w-full bg-white/5 p-4 rounded-2xl mb-4 border border-white/10 text-[10px]">
+        <div class="flex gap-4 mb-4">
+            <input id="bal" type="number" placeholder="BALANCE (USD)" class="flex-1 bg-white/5 p-4 rounded-2xl border border-white/10 text-[10px]">
+            <input id="risk" type="number" placeholder="RISK %" class="w-24 bg-white/5 p-4 rounded-2xl border border-white/10 text-[10px]">
+        </div>
+        <button onclick="ui.save()" class="w-full py-4 bg-cyan-500 text-black font-900 rounded-2xl uppercase text-[10px]">Save & Lock</button>
     </div>
 
     <script src="strategies.js"></script>
