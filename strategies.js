@@ -1,5 +1,6 @@
-/** * OMNI—DUAL SOVEREIGN V78.0 
+/** * OMNI—DUAL SOVEREIGN V78.5 
  * BROKER: XM STANDARD | ASSET: AUTO-DETECT
+ * FIX: Persistent UI & Enhanced Math Logic
  */
 
 const state = { 
@@ -9,12 +10,28 @@ const state = {
 };
 
 const ui = {
-    toggleSettings: () => document.getElementById('settings').classList.toggle('hidden'),
+    toggleSettings: () => {
+        const settings = document.getElementById('settings');
+        settings.classList.toggle('hidden');
+        
+        // HYDRATION: Fill inputs with saved data when opening
+        if (!settings.classList.contains('hidden')) {
+            document.getElementById('key').value = localStorage.getItem('ob_k') || '';
+            document.getElementById('bal').value = localStorage.getItem('ob_b') || '';
+            document.getElementById('risk').value = localStorage.getItem('ob_r') || '';
+        }
+    },
     trigger: (i) => document.getElementById(`f${i}`).click(),
     save: () => {
-        localStorage.setItem('ob_k', document.getElementById('key').value);
-        localStorage.setItem('ob_b', document.getElementById('bal').value);
-        localStorage.setItem('ob_r', document.getElementById('risk').value);
+        const k = document.getElementById('key').value;
+        const b = document.getElementById('bal').value;
+        const r = document.getElementById('risk').value;
+        
+        localStorage.setItem('ob_k', k);
+        localStorage.setItem('ob_b', b);
+        localStorage.setItem('ob_r', r);
+        
+        alert("CONFIG LOCKED: Settings Saved.");
         ui.toggleSettings();
     }
 };
@@ -64,29 +81,34 @@ const engine = {
     ignite: async () => {
         const k = localStorage.getItem('ob_k'), b = localStorage.getItem('ob_b'), r = localStorage.getItem('ob_r');
         if (!k || !b || state.isSyncing) return ui.toggleSettings();
-        if (!state.payloads[2] || !state.payloads[3]) return alert("Box 3 (Trigger) and Box 4 (DXY) are Mandatory.");
+        
+        // Critical Logic Check: Box 2 (1M Trigger) and Box 3 (DXY) are essential
+        if (!state.payloads[2] || !state.payloads[3]) {
+            alert("Surgical error: Box 3 (1M) and Box 4 (DXY) are mandatory for analysis.");
+            return;
+        }
 
         state.isSyncing = true;
         const btn = document.getElementById('igniteBtn');
-        btn.innerText = "SCANNING INSTITUTIONAL FOOTPRINT...";
+        btn.innerText = "HUNTING INSTITUTIONAL POI...";
 
         const strategyLogic = state.mode === 'scalp' 
-            ? `MODE: AGGRESSIVE SCALPER. Strategies: ICT Silver Bullet, M1 Liquidity Grab. Frequency: High. RR 1:1.5 - 1:4.`
-            : `MODE: DAY TRADER. Strategies: SMC OrderBlocks, Wyckoff Spring, BOS/ChoCh. Frequency: A+ Only. RR 1:4 - 1:10.`;
+            ? `MODE: AGGRESSIVE SCALPER. Strategies: ICT Silver Bullet, M1 Liquidity Grab. RR 1:1.5 - 1:4. Focus: High frequency internal sweeps.`
+            : `MODE: DAY TRADER. Strategies: SMC OrderBlocks, Wyckoff Spring, BOS/ChoCh. RR 1:4 - 1:10. Focus: A+ Institutional setups only.`;
 
-        const prompt = `ACT AS OMNI-DUAL SOVEREIGN V78. 
-            ACCOUNT: $${b} (XM STANDARD) | RISK: ${r}%.
+        const prompt = `ACT AS OMNI-DUAL SOVEREIGN V78.5. 
+            ACCOUNT: $${b} (XM STANDARD ACCOUNT) | RISK: ${r}%.
             ${strategyLogic}
             
-            TASKS:
-            1. OCR Asset Name from chart (BTC, ETH, SOL, GOLD, etc).
-            2. Analyze 1H/15M Context vs M1 Trigger. 
-            3. DXY FILTER: Prevent "Dollar Traps". If DXY is bullish, avoid Longs on pairs. 
-            4. MATH: Lot Size = ($${b} * ${r}/100) / (SL Distance in Points).
-               XM STANDARD SPECS: Forex 1 Lot=100k. Crypto/Gold 1 Lot=1 unit.
+            OPERATIONAL TASKS:
+            1. OCR ASSET: Identify symbol from charts. 
+            2. ANALYSIS: Sync 1H/15M bias with 1M trigger entry. 
+            3. DXY FILTER: Identify Dollar Index trend. Avoid "Dollar Traps" (don't buy pairs if DXY is pumping). 
+            4. MATH: Calculate Lot Size = ($${b} * ${r}/100) / (SL Distance in Price Points).
+               SPEC: For Forex 1 Lot=100k units. For Crypto/Gold 1 Lot=1 unit.
 
-            STRICT JSON ONLY:
-            {"asset":"SYMBOL","bias":"BUY/SELL/WATCHING","entry":"0.00","sl":"0.00","tp":"0.00","lots":"0.00","logic":"10-15 word tech summary"}`;
+            STRICT JSON OUTPUT ONLY:
+            {"asset":"SYMBOL","bias":"BUY/SELL/WATCHING","entry":"0.00","sl":"0.00","tp":"0.00","lots":"0.00","logic":"10-15 word tech justification"}`;
 
         try {
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${k}`, {
@@ -100,7 +122,11 @@ const engine = {
 
             const data = await response.json();
             const rawText = data.candidates[0].content.parts[0].text;
-            const parsed = JSON.parse(rawText.match(/\{[\s\S]*\}/)[0]);
+            
+            // Refined Regex for JSON parsing
+            const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+            if (!jsonMatch) throw new Error("JSON_PARSE_FAILED");
+            const parsed = JSON.parse(jsonMatch[0]);
 
             const result = {
                 asset: parsed.asset || "N/A",
@@ -128,10 +154,17 @@ const engine = {
 
         } catch (err) {
             console.error(err);
-            alert("SYNC FAILED: Check API Key and Chart Clarity.");
+            alert("SYNC FAILED: Ensure API key is valid and all 4 charts are uploaded clearly.");
         } finally {
             state.isSyncing = false;
             btn.innerText = "Analyze Market";
         }
+    }
+};
+
+// AUTO-LOAD on Page Refresh
+window.onload = () => {
+    if (localStorage.getItem('ob_k')) {
+        console.log("Sovereign Core: Configuration Hydrated.");
     }
 };
