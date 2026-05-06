@@ -1,65 +1,8 @@
-/** * OMNI—DUAL SOVEREIGN V75.5 
- * FIX: STRICT DATA NORMALIZATION & UNDEFINED-SHIELD
+/** * OMNI—DUAL SOVEREIGN V76.0 
+ * TUNE: AGGRESSIVE FREQUENCY SCALPING
  */
 
-const state = { 
-    mode: 'scalp', 
-    payloads: [null, null, null, null], 
-    isSyncing: false 
-};
-
-const ui = {
-    toggleSettings: () => document.getElementById('settings').classList.toggle('hidden'),
-    trigger: (i) => document.getElementById(`f${i}`).click(),
-    save: () => {
-        localStorage.setItem('ob_k', document.getElementById('key').value);
-        localStorage.setItem('ob_b', document.getElementById('bal').value);
-        localStorage.setItem('ob_r', document.getElementById('risk').value);
-        ui.toggleSettings();
-    }
-};
-
-const engine = {
-    setMode: (m) => {
-        state.mode = m;
-        const s = document.getElementById('btnScalp'), d = document.getElementById('btnDay');
-        const active = "flex-1 py-3.5 rounded-[20px] text-[9px] font-900 uppercase tracking-widest bg-cyan-500 text-black shadow-lg transition-all";
-        const inactive = "flex-1 py-3.5 rounded-[20px] text-[9px] font-900 uppercase tracking-widest text-white/20 hover:text-white/40 transition-all";
-        s.className = m === 'scalp' ? active : inactive;
-        d.className = m === 'day' ? active : inactive;
-    },
-
-    stage: async (i) => {
-        const file = document.getElementById(`f${i}`).files[0];
-        if (file) {
-            document.getElementById(`l${i}`).classList.add('hidden');
-            document.getElementById(`ok${i}`).classList.remove('hidden');
-            document.getElementById(`box${i}`).classList.add('active-ring');
-            state.payloads[i] = await engine.compress(file);
-        }
-    },
-
-    compress: (file) => {
-        return new Promise(res => {
-            const r = new FileReader();
-            r.readAsDataURL(file);
-            r.onload = (e) => {
-                const img = new Image();
-                img.src = e.target.result;
-                img.onload = () => {
-                    const c = document.createElement('canvas');
-                    const ctx = c.getContext('2d');
-                    const max = 1200; 
-                    let w = img.width, h = img.height;
-                    if (w > h) { if (w > max) { h *= max / w; w = max; } }
-                    else { if (h > max) { w *= max / h; h = max; } }
-                    c.width = w; c.height = h;
-                    ctx.drawImage(img, 0, 0, w, h);
-                    res(c.toDataURL('image/jpeg', 0.8).split(',')[1]);
-                };
-            };
-        });
-    },
+// ... (keep state, ui, stage, compress the same)
 
     ignite: async () => {
         const k = localStorage.getItem('ob_k'), b = localStorage.getItem('ob_b'), r = localStorage.getItem('ob_r');
@@ -67,29 +10,43 @@ const engine = {
 
         state.isSyncing = true;
         const btn = document.getElementById('igniteBtn');
-        btn.innerText = "SCRAPING MARKET DATA...";
+        btn.innerText = "HUNTING MICRO-ENTRIES...";
 
+        // HIGH FREQUENCY INSTRUCTIONS
         const strategyPersona = state.mode === 'scalp' 
-            ? `MODE: SCALPER (70-80% SURE SCALPS). Speed focus. M1 entry. Low risk.`
-            : `MODE: DAY TRADER (85-99% PROBABILITY). Institutional confluences. A and A+ setups only.`;
+            ? `MODE: AGGRESSIVE SCALPER. 
+               TARGET: Internal Liquidity Sweeps / M1 MSB. 
+               ACCURACY: 70-80%. 
+               FREQUENCY: High. Look for immediate momentum entries on M1/M5. 
+               RR: 1:1.5 is sufficient. Don't wait for HTF swings.`
+            : `MODE: DAY TRADER. 
+               TARGET: Institutional BOS + FVG. 
+               ACCURACY: 90%+. 
+               FREQUENCY: Moderate. Wait for A+ confluences only.`;
 
-        const prompt = `ACT AS OMNI-DUAL SOVEREIGN. 
+        const prompt = `ACT AS OMNI-DUAL SOVEREIGN CORE. 
             ACCOUNT: $${b} | RISK: ${r}%.
             ${strategyPersona}
             
-            1. Extract Price Data. 
-            2. Calculate Lots: ($${b} * (${r}/100)) / (Entry-SL distance).
-            3. If market is sideways/uncertain, BIAS must be "WATCHING".
+            TASK:
+            1. Scrape current price levels. 
+            2. For SCALP: Identify the nearest Liquidity Sweep or FVG tap for an immediate entry.
+            3. CALCULATE LOTS: ($${b} * (${r}/100)) / (Entry-SL distance).
+            4. BIAS "WATCHING" only if market is completely flat (0 volume).
 
             STRICT JSON ONLY:
-            {"asset":"SYMBOL","bias":"BUY/SELL/WATCHING","entry":"0.00","sl":"0.00","tp":"0.00","lots":"0.00","logic":"10-word explanation"}`;
+            {"asset":"SYMBOL","bias":"BUY/SELL/WATCHING","entry":"0.00","sl":"0.00","tp":"0.00","lots":"0.00","logic":"10-word footprint"}`;
 
         try {
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${k}`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
-                    contents: [{ parts: [ { text: prompt }, ...state.payloads.filter(p => p).map(d => ({ inline_data: { mime_type: "image/jpeg", data: d } })) ] }]
+                    contents: [{ parts: [ { text: prompt }, ...state.payloads.filter(p => p).map(d => ({ inline_data: { mime_type: "image/jpeg", data: d } })) ] }],
+                    generationConfig: { 
+                        temperature: 0.4, // Increased slightly for better entry detection
+                        topP: 0.8 
+                    }
                 })
             });
 
@@ -97,7 +54,6 @@ const engine = {
             const rawText = data.candidates[0].content.parts[0].text;
             const parsed = JSON.parse(rawText.replace(/```json|```/g, '').trim());
 
-            // THE NORMALIZER (STOPS "UNDEFINED")
             const result = {
                 asset: parsed.asset || "N/A",
                 bias: parsed.bias || "WATCHING",
@@ -124,10 +80,10 @@ const engine = {
 
         } catch (err) {
             console.error(err);
-            alert("SYNC FAILED: Ensure all 4 images are uploaded.");
+            alert("SYNC FAILED: Ensure all images are clear.");
         } finally {
             state.isSyncing = false;
             btn.innerText = "Execute Command";
         }
     }
-};
+// ... (rest of engine)
