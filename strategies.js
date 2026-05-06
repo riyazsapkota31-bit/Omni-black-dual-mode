@@ -1,59 +1,44 @@
-/** * OMNI—DUAL SOVEREIGN V78.5 
- * BROKER: XM STANDARD | ASSET: AUTO-DETECT
- * FIX: Persistent UI & Enhanced Math Logic
+/**
+ * OMNI—BLACK | DUAL SOVEREIGN v100
+ * ENGINE: COUNCIL OF 8 AGGREGATOR
+ * MANDATE: ZERO HALLUCINATION / XM-NORMALIZATION
  */
 
-const state = { 
-    mode: 'scalp', 
-    payloads: [null, null, null, null], 
-    isSyncing: false 
-};
-
-const ui = {
-    toggleSettings: () => {
-        const settings = document.getElementById('settings');
-        settings.classList.toggle('hidden');
-        
-        // HYDRATION: Fill inputs with saved data when opening
-        if (!settings.classList.contains('hidden')) {
-            document.getElementById('key').value = localStorage.getItem('ob_k') || '';
-            document.getElementById('bal').value = localStorage.getItem('ob_b') || '';
-            document.getElementById('risk').value = localStorage.getItem('ob_r') || '';
-        }
-    },
-    trigger: (i) => document.getElementById(`f${i}`).click(),
-    save: () => {
-        const k = document.getElementById('key').value;
-        const b = document.getElementById('bal').value;
-        const r = document.getElementById('risk').value;
-        
-        localStorage.setItem('ob_k', k);
-        localStorage.setItem('ob_b', b);
-        localStorage.setItem('ob_r', r);
-        
-        alert("CONFIG LOCKED: Settings Saved.");
-        ui.toggleSettings();
-    }
+const state = {
+    mode: 'scalp',
+    payloads: [null, null, null, null],
+    isSyncing: false
 };
 
 const engine = {
     setMode: (m) => {
         state.mode = m;
         const s = document.getElementById('btnScalp'), d = document.getElementById('btnDay');
-        const active = "flex-1 py-3.5 rounded-[20px] text-[9px] font-900 uppercase tracking-widest bg-cyan-500 text-black shadow-lg transition-all";
-        const inactive = "flex-1 py-3.5 rounded-[20px] text-[9px] font-900 uppercase tracking-widest text-white/20 transition-all";
-        s.className = m === 'scalp' ? active : inactive;
-        d.className = m === 'day' ? active : inactive;
+        const active = "flex-1 py-4 rounded-[25px] text-[10px] font-black uppercase tracking-widest bg-cyan-500 text-black shadow-[0_0_20px_rgba(6,182,212,0.5)] transition-all";
+        const inactive = "flex-1 py-4 rounded-[25px] text-[10px] font-black uppercase tracking-widest text-white/20 transition-all bg-white/5";
+        if(s && d) {
+            s.className = m === 'scalp' ? active : inactive;
+            d.className = m === 'day' ? active : inactive;
+        }
     },
 
     stage: async (i) => {
-        const file = document.getElementById(`f${i}`).files[0];
-        if (file) {
-            document.getElementById(`l${i}`).classList.add('hidden');
-            document.getElementById(`ok${i}`).classList.remove('hidden');
-            document.getElementById(`box${i}`).classList.add('active-ring');
-            state.payloads[i] = await engine.compress(file);
+        const file = document.getElementById(`f${i}`)?.files[0];
+        if (!file) return;
+        
+        // Visual Feedback
+        const box = document.getElementById(`box${i}`);
+        const label = document.getElementById(`l${i}`);
+        const ok = document.getElementById(`ok${i}`);
+        
+        if(box && label && ok) {
+            label.classList.add('hidden');
+            ok.classList.remove('hidden');
+            box.style.borderColor = '#00f2ff';
+            box.style.boxShadow = '0 0 15px rgba(0,242,255,0.2)';
         }
+
+        state.payloads[i] = await engine.compress(file);
     },
 
     compress: (file) => {
@@ -66,13 +51,13 @@ const engine = {
                 img.onload = () => {
                     const c = document.createElement('canvas');
                     const ctx = c.getContext('2d');
-                    const max = 1200; 
+                    const max = 2000; // Ultra-res for OCR precision
                     let w = img.width, h = img.height;
                     if (w > h) { if (w > max) { h *= max / w; w = max; } }
                     else { if (h > max) { w *= max / h; h = max; } }
                     c.width = w; c.height = h;
                     ctx.drawImage(img, 0, 0, w, h);
-                    res(c.toDataURL('image/jpeg', 0.8).split(',')[1]);
+                    res(c.toDataURL('image/jpeg', 0.95).split(',')[1]);
                 };
             };
         });
@@ -81,34 +66,25 @@ const engine = {
     ignite: async () => {
         const k = localStorage.getItem('ob_k'), b = localStorage.getItem('ob_b'), r = localStorage.getItem('ob_r');
         if (!k || !b || state.isSyncing) return ui.toggleSettings();
-        
-        // Critical Logic Check: Box 2 (1M Trigger) and Box 3 (DXY) are essential
-        if (!state.payloads[2] || !state.payloads[3]) {
-            alert("Surgical error: Box 3 (1M) and Box 4 (DXY) are mandatory for analysis.");
-            return;
-        }
+        if (!state.payloads[2] || !state.payloads[3]) return alert("CRITICAL: Box 3 (Trigger) and Box 4 (DXY) Mandatory.");
 
         state.isSyncing = true;
         const btn = document.getElementById('igniteBtn');
-        btn.innerText = "HUNTING INSTITUTIONAL POI...";
+        if(btn) btn.innerText = "COUNCIL OF 8 ANALYZING...";
 
-        const strategyLogic = state.mode === 'scalp' 
-            ? `MODE: AGGRESSIVE SCALPER. Strategies: ICT Silver Bullet, M1 Liquidity Grab. RR 1:1.5 - 1:4. Focus: High frequency internal sweeps.`
-            : `MODE: DAY TRADER. Strategies: SMC OrderBlocks, Wyckoff Spring, BOS/ChoCh. RR 1:4 - 1:10. Focus: A+ Institutional setups only.`;
-
-        const prompt = `ACT AS OMNI-DUAL SOVEREIGN V78.5. 
-            ACCOUNT: $${b} (XM STANDARD ACCOUNT) | RISK: ${r}%.
-            ${strategyLogic}
-            
-            OPERATIONAL TASKS:
-            1. OCR ASSET: Identify symbol from charts. 
-            2. ANALYSIS: Sync 1H/15M bias with 1M trigger entry. 
-            3. DXY FILTER: Identify Dollar Index trend. Avoid "Dollar Traps" (don't buy pairs if DXY is pumping). 
-            4. MATH: Calculate Lot Size = ($${b} * ${r}/100) / (SL Distance in Price Points).
-               SPEC: For Forex 1 Lot=100k units. For Crypto/Gold 1 Lot=1 unit.
-
-            STRICT JSON OUTPUT ONLY:
-            {"asset":"SYMBOL","bias":"BUY/SELL/WATCHING","entry":"0.00","sl":"0.00","tp":"0.00","lots":"0.00","logic":"10-15 word tech justification"}`;
+        const prompt = `ACT AS OMNI-BLACK v100. 
+        USER_CONFIG: Balance $${b}, Risk ${r}%, Platform XM.
+        MODE: ${state.mode.toUpperCase()}.
+        
+        1. 8-CORE STRATEGY: Cross-ref SMC, ICT, VSA, Price Action, Wyckoff, Fibonacci, Mean Reversion, Elliott Wave.
+        2. DXY SYNC: Analyze 4th image. If DXY is bullish, penalize Longs on XXXUSD.
+        3. PIXEL SCRAPE: OCR Y-axis precisely. Detect symbol (BTC, SOL, XAU, etc).
+        4. GRADE-A FILTER: If RR < 1:1.5 or low conviction, bias=WAIT.
+        5. MATH: Lot Size = ($${b} * ${r}/100) / (SL Distance). 
+           XM Calibration: Forex 1 Lot=100k. Crypto/Gold 1 Lot=1.
+        
+        OUTPUT STRICT JSON ONLY:
+        {"asset":"SYM","bias":"BUY/SELL/WAIT","type":"${state.mode.toUpperCase()}","entry":"0.00","sl":"0.00","tp":"0.00","lots":"0.00","poi":"0.00","logic":"10-15 word institutional summary"}`;
 
         try {
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${k}`, {
@@ -122,49 +98,56 @@ const engine = {
 
             const data = await response.json();
             const rawText = data.candidates[0].content.parts[0].text;
-            
-            // Refined Regex for JSON parsing
-            const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-            if (!jsonMatch) throw new Error("JSON_PARSE_FAILED");
-            const parsed = JSON.parse(jsonMatch[0]);
+            const parsed = JSON.parse(rawText.match(/\{[\s\S]*\}/)[0]);
 
-            const result = {
-                asset: parsed.asset || "N/A",
-                bias: (parsed.bias || "WATCHING").toUpperCase(),
-                entry: parsed.entry || "--",
-                sl: parsed.sl || "--",
-                tp: parsed.tp || "--",
-                lots: parsed.lots || "0.00",
-                logic: parsed.logic || "Awaiting structural confirmation."
-            };
-
-            const isW = result.bias === 'WATCHING';
-            const colors = { 'BUY': 'text-emerald-400', 'SELL': 'text-red-500', 'WATCHING': 'text-amber-400' };
-
-            document.getElementById('res-bias').innerText = result.bias;
-            document.getElementById('res-bias').className = `text-[110px] font-900 italic leading-none tracking-tighter uppercase ${colors[result.bias] || 'text-white'}`;
-            document.getElementById('res-asset').innerText = result.asset;
-            document.getElementById('res-entry').innerText = isW ? '--' : result.entry;
-            document.getElementById('res-sl').innerText = isW ? '--' : result.sl;
-            document.getElementById('res-tp').innerText = isW ? '--' : result.tp;
-            document.getElementById('res-lot').innerText = isW ? '--' : result.lots;
-            document.getElementById('res-logic').innerText = result.logic;
-            
-            document.getElementById('result-screen').classList.remove('hidden');
+            ui.render(parsed);
 
         } catch (err) {
             console.error(err);
-            alert("SYNC FAILED: Ensure API key is valid and all 4 charts are uploaded clearly.");
+            alert("ENGINE FAILURE: Check API/Resolution.");
         } finally {
             state.isSyncing = false;
-            btn.innerText = "Analyze Market";
+            if(btn) btn.innerText = "Execute Surgical Scan";
         }
     }
 };
 
-// AUTO-LOAD on Page Refresh
-window.onload = () => {
-    if (localStorage.getItem('ob_k')) {
-        console.log("Sovereign Core: Configuration Hydrated.");
+const ui = {
+    toggleSettings: () => document.getElementById('settings')?.classList.toggle('hidden'),
+    trigger: (i) => document.getElementById(`f${i}`)?.click(),
+    save: () => {
+        localStorage.setItem('ob_k', document.getElementById('key').value);
+        localStorage.setItem('ob_b', document.getElementById('bal').value);
+        localStorage.setItem('ob_r', document.getElementById('risk').value);
+        ui.toggleSettings();
+    },
+    render: (data) => {
+        const isW = data.bias === 'WAIT';
+        
+        // Null Shields & Assignment
+        const elements = {
+            'res-bias': data.bias || 'WAIT',
+            'res-type': data.type || '--',
+            'res-asset': data.asset || '--',
+            'res-entry': isW ? '--' : data.entry,
+            'res-sl': isW ? '--' : data.sl,
+            'res-tp': isW ? '--' : data.tp,
+            'res-lot': isW ? '--' : data.lots,
+            'res-poi': data.poi || '--',
+            'res-logic': data.logic || '--'
+        };
+
+        for (const [id, val] of Object.entries(elements)) {
+            const el = document.getElementById(id);
+            if(el) el.innerText = val;
+        }
+
+        const biasEl = document.getElementById('res-bias');
+        if(biasEl) {
+            const colors = { 'BUY': 'text-emerald-400', 'SELL': 'text-red-500', 'WAIT': 'text-amber-400' };
+            biasEl.className = `text-8xl font-black italic tracking-tighter uppercase ${colors[data.bias] || 'text-white'}`;
+        }
+
+        document.getElementById('result-screen')?.classList.remove('hidden');
     }
 };
