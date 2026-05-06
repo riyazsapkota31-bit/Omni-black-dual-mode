@@ -10,7 +10,6 @@
         .glass { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); }
         .neon-glow { text-shadow: 0 0 20px rgba(6, 182, 212, 0.5); }
         .active-glow { border-color: #00f2ff !important; box-shadow: 0 0 15px rgba(0, 242, 255, 0.2); }
-        /* Prevent scroll bounce on mobile */
         html, body { overscroll-behavior-y: none; }
     </style>
 </head>
@@ -18,7 +17,7 @@
     <div class="flex justify-between items-start mb-8">
         <div>
             <h1 class="text-4xl font-black italic tracking-tighter text-cyan-400 neon-glow uppercase leading-none">OMNI—DUAL</h1>
-            <p class="text-[8px] font-bold text-white/40 tracking-[0.3em] uppercase mt-2">V100.0 | 8-CORE AGGREGATOR</p>
+            <p class="text-[8px] font-bold text-white/40 tracking-[0.3em] uppercase mt-2">V100.2 | 8-CORE AGGREGATOR</p>
         </div>
         <button onclick="ui.toggleSettings()" class="p-4 glass rounded-2xl active:scale-95 transition-transform">⚙️</button>
     </div>
@@ -51,11 +50,10 @@
         </div>
     </div>
 
-    <button id="igniteBtn" onclick="engine.ignite()" class="w-full py-6 rounded-[35px] bg-white text-black font-black text-[12px] uppercase tracking-[0.3em] active:scale-95 transition-transform shadow-[0_0_30px_rgba(255,255,255,0.2)]">Execute Structural Scan</button>
+    <button id="igniteBtn" onclick="engine.ignite()" class="w-full py-6 rounded-[35px] bg-white text-black font-black text-[12px] uppercase tracking-[0.3em] active:scale-95 transition-transform shadow-xl">Execute Surgical Scan</button>
 
     <div id="result-screen" class="fixed inset-0 bg-[#050505] z-[80] p-8 hidden flex-col overflow-y-auto">
-        <button onclick="document.getElementById('result-screen').classList.add('hidden')" class="mb-8 text-[9px] font-black text-white/40 uppercase tracking-widest self-start p-2">← Return to Command</button>
-        
+        <button onclick="document.getElementById('result-screen').classList.add('hidden')" class="mb-8 text-[9px] font-black text-white/40 uppercase tracking-widest self-start p-2">← Return</button>
         <div class="text-center mb-10 mt-4">
             <h2 id="res-bias" class="text-[100px] font-black italic leading-none tracking-tighter">--</h2>
             <div class="flex justify-center gap-3 mt-6">
@@ -63,62 +61,51 @@
                 <span id="res-asset" class="glass px-5 py-2.5 rounded-full text-[9px] font-black text-white/80 uppercase tracking-[0.2em]">--</span>
             </div>
         </div>
-
         <div class="grid grid-cols-2 gap-4 mb-4">
             <div class="glass p-6 rounded-[35px] text-center border-t-2 border-t-white/10">
-                <p class="text-[8px] text-white/30 mb-2 uppercase font-black tracking-widest">Entry</p>
-                <p id="res-entry" class="text-2xl font-black tracking-tight">--</p>
+                <p class="text-[8px] text-white/30 mb-2 uppercase font-black">Entry</p>
+                <p id="res-entry" class="text-2xl font-black">--</p>
             </div>
             <div class="glass p-6 rounded-[35px] text-center border-t-2 border-t-cyan-500/30">
-                <p class="text-[8px] text-cyan-400/50 mb-2 uppercase font-black tracking-widest">Lot Size (XM)</p>
-                <p id="res-lot" class="text-2xl font-black tracking-tight text-cyan-400">--</p>
+                <p class="text-[8px] text-cyan-400/50 mb-2 uppercase font-black">Lot Size</p>
+                <p id="res-lot" class="text-2xl font-black text-cyan-400">--</p>
             </div>
             <div class="glass p-6 rounded-[35px] text-center border-t-2 border-t-red-500/30">
-                <p class="text-[8px] text-red-400/50 mb-2 uppercase font-black tracking-widest">Stop Loss</p>
-                <p id="res-sl" class="text-2xl font-black tracking-tight text-red-500">--</p>
+                <p class="text-[8px] text-red-400/50 mb-2 uppercase font-black">Stop Loss</p>
+                <p id="res-sl" class="text-2xl font-black text-red-500">--</p>
             </div>
             <div class="glass p-6 rounded-[35px] text-center border-t-2 border-t-emerald-500/30">
-                <p class="text-[8px] text-emerald-400/50 mb-2 uppercase font-black tracking-widest">Take Profit</p>
-                <p id="res-tp" class="text-2xl font-black tracking-tight text-emerald-400">--</p>
+                <p class="text-[8px] text-emerald-400/50 mb-2 uppercase font-black">Take Profit</p>
+                <p id="res-tp" class="text-2xl font-black text-emerald-400">--</p>
             </div>
         </div>
-
-        <div class="glass p-6 rounded-[35px] mb-4 text-center border-t-2 border-t-amber-500/30">
-            <p class="text-[8px] text-amber-400/50 mb-2 uppercase font-black tracking-widest">Point of Interest (POI)</p>
-            <p id="res-poi" class="text-2xl font-black tracking-tight text-amber-400">--</p>
-        </div>
-
         <div class="glass p-8 rounded-[40px] border-white/5 mt-auto mb-4">
-            <p id="res-logic" class="text-[12px] leading-relaxed text-white/80 italic font-medium text-center tracking-wide"></p>
+            <p id="res-logic" class="text-[12px] leading-relaxed text-white/80 italic text-center"></p>
         </div>
     </div>
 
     <div id="settings" class="fixed inset-0 bg-[#080808] z-[100] p-10 hidden flex-col justify-center backdrop-blur-2xl">
         <div class="max-w-md mx-auto w-full">
-            <h3 class="text-3xl font-black italic mb-2 uppercase text-cyan-400 tracking-tighter">Hardware</h3>
+            <h3 class="text-3xl font-black italic mb-2 uppercase text-cyan-400 tracking-tighter">Hardware Interface</h3>
             <p class="text-[8px] text-white/40 uppercase tracking-[0.4em] mb-12">Model Locked: Gemini 2.5 Flash</p>
-            
             <div class="space-y-6">
                 <div class="relative">
                     <p class="text-[9px] font-black text-cyan-500 uppercase mb-3 ml-2 tracking-widest">API Key</p>
-                    <input id="key" type="password" placeholder="••••••••••••••••" class="w-full bg-white/5 border border-white/10 p-6 rounded-3xl text-[12px] outline-none focus:border-cyan-500 transition-all text-white font-mono">
+                    <input id="key" type="password" placeholder="••••••••••••••••" class="w-full bg-white/5 border border-white/10 p-6 rounded-3xl text-[12px] outline-none focus:border-cyan-500 text-white font-mono">
                 </div>
                 <div class="flex gap-4">
                     <div class="flex-1">
                         <p class="text-[9px] font-black text-white/40 uppercase mb-3 ml-2 tracking-widest">Balance ($)</p>
-                        <input id="bal" type="number" placeholder="0.00" class="w-full bg-white/5 border border-white/10 p-6 rounded-3xl text-[12px] outline-none focus:border-white/40 transition-all text-white font-mono">
+                        <input id="bal" type="number" placeholder="0.00" class="w-full bg-white/5 border border-white/10 p-6 rounded-3xl text-[12px] outline-none text-white font-mono">
                     </div>
                     <div class="w-1/3">
                         <p class="text-[9px] font-black text-white/40 uppercase mb-3 ml-2 tracking-widest">Risk %</p>
-                        <input id="risk" type="number" placeholder="1.0" class="w-full bg-white/5 border border-white/10 p-6 rounded-3xl text-[12px] outline-none focus:border-white/40 transition-all text-white font-mono">
+                        <input id="risk" type="number" placeholder="1.0" class="w-full bg-white/5 border border-white/10 p-6 rounded-3xl text-[12px] outline-none text-white font-mono">
                     </div>
                 </div>
             </div>
-
-            <button id="saveBtn" onclick="ui.save()" class="w-full py-6 bg-cyan-500 text-black font-black rounded-full mt-14 text-[11px] uppercase tracking-[0.2em] shadow-[0_15px_40px_rgba(6,182,212,0.3)] active:scale-95 transition-all">
-                Lock Configuration
-            </button>
-            <button onclick="ui.toggleSettings()" class="w-full mt-6 py-4 text-[9px] font-black text-white/30 uppercase tracking-widest active:scale-95 transition-transform">Abort Setup</button>
+            <button id="saveBtn" onclick="ui.save()" class="w-full py-6 bg-cyan-500 text-black font-black rounded-full mt-14 text-[11px] uppercase tracking-[0.2em] shadow-lg active:scale-95 transition-all">Lock Configuration</button>
+            <button onclick="ui.toggleSettings()" class="w-full mt-6 py-4 text-[9px] font-black text-white/30 uppercase tracking-widest active:scale-95">Abort Setup</button>
         </div>
     </div>
 
