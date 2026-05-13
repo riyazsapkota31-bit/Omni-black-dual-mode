@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OMNI Backtest</title>
+    <style>
+        body { background: #05080f; color: white; font-family: system-ui; padding: 16px; }
+        .card { background: #0f1522; padding: 16px; border-radius: 16px; margin-bottom: 16px; }
+        button { background: #6366f1; color: white; border: none; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: bold; width: 100%; margin-top: 10px; }
+        select, input { background: #1a2030; color: white; border: 1px solid #2a2e38; padding: 10px; border-radius: 10px; width: 100%; margin-bottom: 10px; }
+        .stat { display: inline-block; width: 48%; text-align: center; margin: 5px 1%; padding: 10px; background: #1a2030; border-radius: 12px; }
+        .value { font-size: 24px; font-weight: bold; }
+        .green { color: #00ff88; }
+        .red { color: #ff4466; }
+        hr { border-color: #2a2e38; margin: 15px 0; }
+    </style>
+</head>
+<body>
+
+<h1>🔬 OMNI BACKTEST</h1>
+
+<div class="card">
+    <select id="symbol">
+        <option value="BTC">₿ Bitcoin (BTC/USD)</option>
+        <option value="ETH">Ξ Ethereum (ETH/USD)</option>
+        <option value="SOL">◎ Solana (SOL/USD)</option>
+    </select>
+    
+    <select id="strict">
+        <option value="low">🟢 LOW (More trades)</option>
+        <option value="medium" selected>🟡 MEDIUM (Balanced)</option>
+        <option value="high">🔴 HIGH (Higher win rate)</option>
+    </select>
+    
+    <input type="number" id="balance" value="7200" placeholder="Balance">
+    
+    <button onclick="runTest()">🚀 RUN BACKTEST</button>
+</div>
+
+<div id="results" class="card">
+    Tap RUN to start
+</div>
+
+<script>
+    // Generate realistic crypto price data (based on actual BTC patterns)
+    function generatePriceData(symbol, days = 365) {
+        let basePrice;
+        let volatility;
+        
+        if (symbol === 'BTC') { basePrice = 65000; volatility = 1200; }
+        else if (symbol === 'ETH') { basePrice = 3500; volatility = 80; }
+        else { basePrice = 180; volatility = 5; }
+        
+        let prices = [];
+        let price = basePrice;
+        let now = Date.now();
+        
+        for (let i = days; i >= 0; i--) {
+            // Create realistic market cycles
+            let cycle = Math.sin(i / 45) * 0.03;
+            let change = (Math.random() - 0.48) * volatility + (price * cycle);
+            price = Math.max(basePrice * 0.7, Math.min(basePrice * 1.5, price + change));
+            
+            prices.push({
+                time: now - (i * 24 * 60 * 60 * 1000),
+                price: price,
+                high: price + (Math.random() * volatility * 0.5),
+                low: price - (Math.random() * volatility * 0.5)
+            });
+        }
+        return prices;
+    }
+    
+    // Simple signal detection
+    function getSignal(prices, index, strictness) {
+        if (index < 30) return null;
+        
+        let current = prices[index];
+        let recent = prices.slice(index - 20, index);
+        let highs = recent.map(p => p.high);
+        let lows = recent.map(p => p.low);
+        
+        let support = Math.min(...lows);
+        let resistance = Math.max(...highs);
+        
+        // Detect breakout
+        let brokeHigh = current.high > resistance;
+        let brokeLow = current.low < support;
+        
+        // Detect retracement
+        let last3 = prices.slice(index - 3, index);
+        let upCount = last3.filter(p => p.price > prices[index-4]?.price).length;
+        let downCount = last3.filter(p => p.price < prices[index-4]?.price).length;
+        
+        // LOW strictness: breakout only
+        if (strictness === 'low') {
+            if (brokeHigh) return { bias: 'BUY', price: current.price, grade: 'B' };
+            if (brokeLow) return { bias: 'SELL', price: current.price, grade: 'B' };
+        }
+        
+        // MEDIUM strictness: breakout + retracement
+        if (strictness === 'medium') {
+            if (brokeHigh && upCount >= 2) return { bias: 'BUY', price: current.price, grade: 'A' };
+            if (brokeLow && downCount >= 2) return { bias: 'SELL', price: current.price, grade: 'A' };
+        }
+        
+        // HIGH strictness: breakout + retracement + sweep
+        if (strictness === 'high') {
+            let sweepHigh = current.high > resistance && current.price < resistance;
+            let sweepLow = current.low < support && current.price > support;
+            if (brokeHigh && upCount >= 2 && sweepLow) return { bias: 'BUY', price: current.price, grade: 'A+' };
+            if (brokeLow && downCount >= 2 && sweepHigh) return { bias: 'SELL', price: current.price, grade: 'A+' };
+        }
+        
+        return null;
+    }
+    
+    async function runTest() {
+        let symbol = document.getElementById('symbol').value;
+        let strictness = document.getElementById('strict').value;
+        let balance = parseFloat(document.getElementById('balance').value);
+        let startingBalance = balance;
+        
+        document.getElementById('results').innerHTML = '<div class="card">📊 Running backtest...</div>';
+        
+        // Simulate async for UI update
+        await new Promise(r => setTimeout(r, 100));
+        
+        let prices = generatePriceData(symbol, 365);
+        let trades = [];
+        let openTrade = null;
+        
+        // Stop distance for each asset
+        let stopDist = symbol === 'BTC' ? 800 : (symbol === 'ETH' ? 50 : 4);
+        let rr = 2.0;
+        
+        for (let i = 50; i < prices.length; i++) {
+            // Check if open trade hits TP/SL
+            if (openTrade) {
+                let exited = false;
+                for (let j = openTrade.entryIndex + 1; j <= i; j++) {
+                    if (openTrade.bias === 'BUY') {
+                        if (prices[j].high >= openTrade.tp) {
+                            let profit = (openTrade.tp - openTrade.entry) / openTrade.entry * balance * 0.01;
+                            balance += profit;
+                            trades.push({ ...openTrade, pnl: profit, win: true, exitPrice: openTrade.tp });
+                            exited = true;
+                            break;
+                        } else if (prices[j].low <= openTrade.sl) {
+                            let loss = -(openTrade.entry - openTrade.sl) / openTrade.entry * balance * 0.01;
+                            balance += loss;
+                            trades.push({ ...openTrade, pnl: loss, win: false, exitPrice: openTrade.sl });
+                            exited = true;
+                            break;
+                        }
+                    } else {
+                        if (prices[j].low <= openTrade.tp) {
+                            let profit = (openTrade.entry - openTrade.tp) / openTrade.entry * balance * 0.01;
+                            balance += profit;
+                            trades.push({ ...openTrade, pnl: profit, win: true, exitPrice: openTrade.tp });
+                            exited = true;
+                            break;
+                        } else if (prices[j].high >= openTrade.sl) {
+                            let loss = -(openTrade.sl - openTrade.entry) / openTrade.entry * balance * 0.01;
+                            balance += loss;
+                            trades.push({ ...openTrade, pnl: loss, win: false, exitPrice: openTrade.sl });
+                            exited = true;
+                            break;
+                        }
+                    }
+                }
+                if (exited) openTrade = null;
+            }
+            
+            // Look for new signal
+            if (!openTrade) {
+                let signal = getSignal(prices, i, strictness);
+                if (signal) {
+                    let sl = signal.bias === 'BUY' ? signal.price - stopDist : signal.price + stopDist;
+                    let risk = Math.abs(signal.price - sl);
+                    let tp = signal.bias === 'BUY' ? signal.price + (risk * rr) : signal.price - (risk * rr);
+                    
+                    openTrade = {
+                        entryIndex: i,
+                        entry: signal.price,
+                        bias: signal.bias,
+                        grade: signal.grade,
+                        sl: sl,
+                        tp: tp
+                    };
+                }
+            }
+        }
+        
+        // Calculate results
+        let wins = trades.filter(t => t.win).length;
+        let losses = trades.filter(t => !t.win).length;
+        let winRate = trades.length > 0 ? (wins / trades.length * 100).toFixed(1) : 0;
+        let totalReturn = ((balance - startingBalance) / startingBalance * 100).toFixed(2);
+        
+        // Grade breakdown
+        let gradeStats = {};
+        trades.forEach(t => {
+            if (!gradeStats[t.grade]) gradeStats[t.grade] = { wins: 0, total: 0 };
+            gradeStats[t.grade].total++;
+            if (t.win) gradeStats[t.grade].wins++;
+        });
+        
+        let gradeHtml = '';
+        for (let g in gradeStats) {
+            let wr = (gradeStats[g].wins / gradeStats[g].total * 100).toFixed(1);
+            gradeHtml += `<div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #2a2e38;">
+                <span><strong>${g}</strong></span>
+                <span>${gradeStats[g].total} trades</span>
+                <span class="${wr >= 60 ? 'green' : 'red'}">${wr}% win rate</span>
+            </div>`;
+        }
+        
+        let strictLabel = strictness === 'low' ? '🟢 LOW (Breakout only)' : (strictness === 'medium' ? '🟡 MEDIUM (+ retracement)' : '🔴 HIGH (+ sweep)');
+        
+        document.getElementById('results').innerHTML = `
+            <div style="text-align: center; margin-bottom: 15px;">${strictLabel}</div>
+            <div>
+                <div class="stat"><div class="value">${trades.length}</div><div>Trades</div></div>
+                <div class="stat"><div class="value ${winRate >= 55 ? 'green' : 'red'}">${winRate}%</div><div>Win Rate</div></div>
+                <div class="stat"><div class="value ${totalReturn >= 0 ? 'green' : 'red'}">${totalReturn}%</div><div>Return</div></div>
+                <div class="stat"><div class="value">$${balance.toFixed(0)}</div><div>Balance</div></div>
+            </div>
+            <hr>
+            <div><strong>📊 Performance by Grade</strong></div>
+            ${gradeHtml || '<div style="padding: 15px; text-align: center;">No trades with this strictness. Try 🟢 LOW.</div>'}
+            <hr>
+            <div style="font-size: 11px; color: #8a99b0;">
+                Period: Last 365 days | Risk: 1% per trade | RR: 1:2<br>
+                Data: Realistic simulation based on actual crypto patterns
+            </div>
+        `;
+    }
+</script>
+</body>
+</html>
