@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Backtest Your Strategy</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #0a0f1a; color: white; }
+        .result { background: #1a1f2a; padding: 15px; margin: 10px 0; border-radius: 8px; }
+        button { background: #6366f1; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+        select, input { padding: 8px; margin: 5px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🔬 OMNI-SIGNAL BACKTEST</h1>
+    
+    <div>
+        <label>Symbol: </label>
+        <select id="symbol">
+            <option value="GC=F">XAUUSD (Gold)</option>
+            <option value="SI=F">XAGUSD (Silver)</option>
+            <option value="EURUSD=X">EURUSD</option>
+            <option value="GBPUSD=X">GBPUSD</option>
+            <option value="BTC-USD">BTCUSD</option>
+            <option value="ETH-USD">ETHUSD</option>
+        </select>
+        
+        <label>Start Date: </label>
+        <input type="date" id="startDate" value="2025-04-01">
+        
+        <label>End Date: </label>
+        <input type="date" id="endDate" value="2025-05-01">
+        
+        <button onclick="runBacktest()">RUN BACKTEST</button>
+    </div>
+    
+    <div id="results"></div>
+
+    <script>
+        // YOUR STRATEGY FUNCTIONS (paste them here)
+        // For now, using simplified version
+        
+        async function runBacktest() {
+            const symbol = document.getElementById('symbol').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            document.getElementById('results').innerHTML = '<div class="result">📊 Fetching data... Please wait.</div>';
+            
+            // Fetch historical data from Yahoo Finance
+            const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?period1=${new Date(startDate).getTime()/1000}&period2=${new Date(endDate).getTime()/1000}&interval=5m`;
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                const candles = data.chart.result[0].indicators.quote[0];
+                const timestamps = data.chart.result[0].timestamp;
+                
+                // Build candle array
+                const history = [];
+                for (let i = 0; i < timestamps.length; i++) {
+                    if (candles.open[i] && candles.high[i] && candles.low[i] && candles.close[i]) {
+                        history.push({
+                            timestamp: timestamps[i],
+                            open: candles.open[i],
+                            high: candles.high[i],
+                            low: candles.low[i],
+                            close: candles.close[i]
+                        });
+                    }
+                }
+                
+                // Run simple backtest
+                let balance = 7200;
+                let trades = 0;
+                let wins = 0;
+                
+                // Simple strategy: Buy when price closes above 20-period high
+                for (let i = 20; i < history.length; i++) {
+                    const recentHighs = history.slice(i-20, i).map(c => c.high);
+                    const highest = Math.max(...recentHighs);
+                    
+                    if (history[i].close > highest) {
+                        // BUY signal
+                        trades++;
+                        const entry = history[i].close;
+                        const stopLoss = entry - 15; // $15 stop for Gold
+                        const takeProfit = entry + 30; // 2:1 RR
+                        
+                        // Find exit
+                        for (let j = i+1; j < history.length; j++) {
+                            if (history[j].high >= takeProfit) {
+                                wins++;
+                                balance += (takeProfit - entry) / entry * balance;
+                                break;
+                            } else if (history[j].low <= stopLoss) {
+                                balance -= (entry - stopLoss) / entry * balance;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                const winRate = trades > 0 ? (wins / trades * 100).toFixed(1) : 0;
+                const returnPct = ((balance - 7200) / 7200 * 100).toFixed(2);
+                
+                document.getElementById('results').innerHTML = `
+                    <div class="result">
+                        <h2>📈 RESULTS</h2>
+                        <p>📊 Period: ${startDate} to ${endDate}</p>
+                        <p>💰 Starting Balance: $7,200</p>
+                        <p>🎯 Final Balance: $${balance.toFixed(2)}</p>
+                        <p>📈 Total Return: ${returnPct}%</p>
+                        <p>🏆 Total Trades: ${trades}</p>
+                        <p>✅ Winning Trades: ${wins}</p>
+                        <p>❌ Losing Trades: ${trades - wins}</p>
+                        <p>📊 Win Rate: ${winRate}%</p>
+                    </div>
+                `;
+                
+            } catch(err) {
+                document.getElementById('results').innerHTML = `<div class="result">❌ Error: ${err.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
