@@ -469,8 +469,7 @@
         
         const startTimestamp = Math.floor(new Date(startDate).getTime() / 1000);
         const endTimestamp = Math.floor(new Date(endDate).getTime() / 1000);
-        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?period1=${startTimestamp}&period2=${endTimestamp}&interval=${yahooInterval}`;
-        
+      const url = `https://cors-anywhere.herokuapp.com/https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?period1=${startTimestamp}&period2=${endTimestamp}&interval=${yahooInterval}`;
         try {
             const response = await fetch(url);
             const data = await response.json();
