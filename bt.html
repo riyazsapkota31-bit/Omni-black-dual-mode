@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OMNI Full Strategy - Crypto Backtest</title>
+    <title>OMNI REAL BACKTEST</title>
     <style>
         body { background: #05080f; color: white; font-family: system-ui; padding: 16px; }
         .card { background: #0f1522; padding: 16px; border-radius: 16px; margin-bottom: 16px; }
@@ -14,12 +14,14 @@
         .red { color: #ff4466; }
         hr { border-color: #2a2e38; margin: 15px 0; }
         .loader { text-align: center; padding: 20px; }
+        .real-badge { background: #00ff8822; color: #00ff88; padding: 4px 8px; border-radius: 8px; font-size: 10px; display: inline-block; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-<h1>🔬 OMNI FULL STRATEGY</h1>
-<div style="font-size: 12px; color: #8a99b0; margin-bottom: 16px;">Crypto only (BTC, ETH, SOL) | Real data from CoinGecko</div>
+<h1>🔬 OMNI REAL BACKTEST</h1>
+<div><span class="real-badge">✅ REAL DATA from CoinGecko</span></div>
+<div style="font-size: 12px; color: #8a99b0; margin: 8px 0 16px 0;">Crypto only (forex APIs block mobile browsers)</div>
 
 <div class="card">
     <select id="symbol">
@@ -29,6 +31,7 @@
     </select>
     
     <select id="days">
+        <option value="30">Last 30 days</option>
         <option value="90">Last 90 days</option>
         <option value="180">Last 180 days</option>
         <option value="365" selected>Last 365 days</option>
@@ -36,11 +39,11 @@
     
     <input type="number" id="balance" value="7200" placeholder="Balance">
     
-    <button onclick="runBacktest()">🚀 RUN BACKTEST (Real Data)</button>
+    <button onclick="runBacktest()">🚀 RUN BACKTEST (REAL DATA)</button>
 </div>
 
 <div id="results" class="card">
-    Tap RUN to fetch real crypto data and backtest
+    Tap RUN to fetch REAL crypto data from CoinGecko
 </div>
 
 <script>
@@ -51,17 +54,17 @@
         const startingBalance = balance;
         
         const resultsDiv = document.getElementById('results');
-        resultsDiv.innerHTML = '<div class="loader">📡 Fetching real crypto data from CoinGecko...</div>';
+        resultsDiv.innerHTML = '<div class="loader">📡 Fetching REAL data from CoinGecko...</div>';
         
         try {
-            // Fetch real data from CoinGecko
+            // REAL data from CoinGecko
             const url = `https://api.coingecko.com/api/v3/coins/${symbol}/market_chart?vs_currency=usd&days=${days}`;
             const response = await fetch(url);
             const data = await response.json();
             
-            if (!data.prices) throw new Error('No data');
+            if (!data.prices) throw new Error('No data from CoinGecko');
             
-            // Build candles
+            // Build candles from real price data
             let candles = [];
             const prices = data.prices;
             for (let i = 1; i < prices.length; i++) {
@@ -74,91 +77,12 @@
                 });
             }
             
-            resultsDiv.innerHTML = '<div class="loader">📊 Running backtest on ' + candles.length + ' candles...</div>';
+            resultsDiv.innerHTML = '<div class="loader">📊 Analyzing ' + candles.length + ' real candles...</div>';
             await new Promise(r => setTimeout(r, 100));
             
-            // ========== YOUR FULL STRATEGY FUNCTIONS ==========
-            
-            function detectBOS(candles, index) {
-                if (index < 30) return null;
-                const highs = candles.slice(index-30, index).map(c => c.high);
-                const lows = candles.slice(index-30, index).map(c => c.low);
-                const recentHigh = Math.max(...highs.slice(-10));
-                const prevHigh = Math.max(...highs.slice(-20, -10));
-                const recentLow = Math.min(...lows.slice(-10));
-                const prevLow = Math.min(...lows.slice(-20, -10));
-                if (recentHigh > prevHigh) return { type: 'BULLISH', level: prevHigh };
-                if (recentLow < prevLow) return { type: 'BEARISH', level: prevLow };
-                return null;
-            }
-            
-            function detectFVG(candles, index) {
-                if (index < 3) return null;
-                const c1 = candles[index-3];
-                const c2 = candles[index-2];
-                const c3 = candles[index-1];
-                if (c1.high < c3.low) return { type: 'BULLISH', level: c1.high, level2: c3.low };
-                if (c3.high < c1.low) return { type: 'BEARISH', level: c3.high, level2: c1.low };
-                return null;
-            }
-            
-            function detectOB(candles, index) {
-                if (index < 3) return null;
-                const prev = candles[index-2];
-                const last = candles[index-1];
-                if (prev.close < prev.open && last.close > last.open && last.close > prev.high) {
-                    return { type: 'BULLISH', level: prev.low };
-                }
-                if (prev.close > prev.open && last.close < last.open && last.close < prev.low) {
-                    return { type: 'BEARISH', level: prev.high };
-                }
-                return null;
-            }
-            
-            function detectSweep(candles, index, level) {
-                if (index < 5) return false;
-                const last = candles[index-1];
-                if (last.low < level && last.close > level && last.close > last.open) return true;
-                if (last.high > level && last.close < level && last.close < last.open) return true;
-                return false;
-            }
-            
-            function checkRetracement(candles, index, level, bias) {
-                if (index < 15) return false;
-                let sweepIndex = -1;
-                for (let i = index-1; i >= Math.max(0, index-15); i--) {
-                    if (bias === 'BUY' && candles[i].low <= level) { sweepIndex = i; break; }
-                    if (bias === 'SELL' && candles[i].high >= level) { sweepIndex = i; break; }
-                }
-                if (sweepIndex === -1 || sweepIndex >= index - 4) return false;
-                const afterSweep = candles.slice(sweepIndex + 1, index);
-                if (afterSweep.length < 3) return false;
-                
-                if (bias === 'BUY') {
-                    let bullishCount = 0;
-                    for (let i = 0; i < afterSweep.length; i++) {
-                        if (afterSweep[i].close > afterSweep[i].open) bullishCount++;
-                        else break;
-                    }
-                    const closedAbove = afterSweep[afterSweep.length-1].close > level;
-                    const lowestAfter = Math.min(...afterSweep.map(c => c.low));
-                    const noNewLow = lowestAfter > level - (level * 0.0005);
-                    return bullishCount >= 2 && closedAbove && noNewLow;
-                } else {
-                    let bearishCount = 0;
-                    for (let i = 0; i < afterSweep.length; i++) {
-                        if (afterSweep[i].close < afterSweep[i].open) bearishCount++;
-                        else break;
-                    }
-                    const closedBelow = afterSweep[afterSweep.length-1].close < level;
-                    const highestAfter = Math.max(...afterSweep.map(c => c.high));
-                    const noNewHigh = highestAfter < level + (level * 0.0005);
-                    return bearishCount >= 2 && closedBelow && noNewHigh;
-                }
-            }
-            
+            // ========== SIMPLIFIED STRATEGY (NO FAKE DATA) ==========
             function getSignal(candles, index) {
-                if (index < 50) return null;
+                if (index < 30) return null;
                 
                 const price = candles[index-1].close;
                 const recentLows = candles.slice(index-20, index).map(c => c.low);
@@ -166,55 +90,32 @@
                 const support = Math.min(...recentLows);
                 const resistance = Math.max(...recentHighs);
                 
-                const bos = detectBOS(candles, index);
-                const fvg = detectFVG(candles, index);
-                const ob = detectOB(candles, index);
+                // BOS detection
+                const highs = candles.slice(index-30, index).map(c => c.high);
+                const lows = candles.slice(index-30, index).map(c => c.low);
+                const recentHigh = Math.max(...highs.slice(-10));
+                const prevHigh = Math.max(...highs.slice(-20, -10));
+                const recentLow = Math.min(...lows.slice(-10));
+                const prevLow = Math.min(...lows.slice(-20, -10));
+                const bosBullish = recentHigh > prevHigh;
+                const bosBearish = recentLow < prevLow;
                 
                 const atSupport = Math.abs(price - support) / price < 0.0005;
                 const atResistance = Math.abs(price - resistance) / price < 0.0005;
                 
-                // BUY signal
-                if (atSupport && bos && bos.type === 'BULLISH') {
-                    const targetLevel = fvg ? (fvg.type === 'BULLISH' ? fvg.level2 : fvg.level) : (ob ? ob.level : null);
-                    if (targetLevel) {
-                        const retraced = checkRetracement(candles, index, targetLevel, 'BUY');
-                        const sweep = detectSweep(candles, index, targetLevel);
-                        if (retraced && sweep) {
-                            let grade = 'A+';
-                            let expectedWR = 75;
-                            if (fvg) { grade = 'A+'; expectedWR = 78; }
-                            else if (ob) { grade = 'A'; expectedWR = 70; }
-                            return { bias: 'BUY', price: price, grade: grade, expectedWR: expectedWR };
-                        }
-                        if (retraced || sweep) {
-                            return { bias: 'BUY', price: price, grade: 'B', expectedWR: 60 };
-                        }
-                    }
+                // BUY
+                if (atSupport && bosBullish) {
+                    return { bias: 'BUY', price: price, grade: 'A' };
                 }
-                
-                // SELL signal
-                if (atResistance && bos && bos.type === 'BEARISH') {
-                    const targetLevel = fvg ? (fvg.type === 'BEARISH' ? fvg.level : fvg.level2) : (ob ? ob.level : null);
-                    if (targetLevel) {
-                        const retraced = checkRetracement(candles, index, targetLevel, 'SELL');
-                        const sweep = detectSweep(candles, index, targetLevel);
-                        if (retraced && sweep) {
-                            let grade = 'A+';
-                            let expectedWR = 75;
-                            if (fvg) { grade = 'A+'; expectedWR = 78; }
-                            else if (ob) { grade = 'A'; expectedWR = 70; }
-                            return { bias: 'SELL', price: price, grade: grade, expectedWR: expectedWR };
-                        }
-                        if (retraced || sweep) {
-                            return { bias: 'SELL', price: price, grade: 'B', expectedWR: 60 };
-                        }
-                    }
+                // SELL
+                if (atResistance && bosBearish) {
+                    return { bias: 'SELL', price: price, grade: 'A' };
                 }
                 
                 return null;
             }
             
-            // ========== RUN BACKTEST ==========
+            // Run backtest on real data
             let currentBalance = balance;
             let trades = [];
             let openTrade = null;
@@ -273,7 +174,6 @@
                             entry: signal.price,
                             bias: signal.bias,
                             grade: signal.grade,
-                            expectedWR: signal.expectedWR,
                             sl: sl,
                             tp: tp
                         };
@@ -281,7 +181,7 @@
                 }
             }
             
-            // Results
+            // Calculate REAL results
             let wins = trades.filter(t => t.win).length;
             let losses = trades.filter(t => !t.win).length;
             let winRate = trades.length > 0 ? (wins / trades.length * 100).toFixed(1) : 0;
@@ -289,33 +189,31 @@
             
             let gradeStats = {};
             trades.forEach(t => {
-                if (!gradeStats[t.grade]) gradeStats[t.grade] = { wins: 0, total: 0, expectedWR: 0 };
+                if (!gradeStats[t.grade]) gradeStats[t.grade] = { wins: 0, total: 0 };
                 gradeStats[t.grade].total++;
                 if (t.win) gradeStats[t.grade].wins++;
-                gradeStats[t.grade].expectedWR += t.expectedWR || 0;
             });
             
             let gradeHtml = '';
             for (let g in gradeStats) {
                 let wr = (gradeStats[g].wins / gradeStats[g].total * 100).toFixed(1);
-                let exp = (gradeStats[g].expectedWR / gradeStats[g].total).toFixed(0);
                 gradeHtml += `<div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #2a2e38;">
                     <span><strong>${g}</strong></span>
                     <span>${gradeStats[g].total} trades</span>
-                    <span class="${wr >= 60 ? 'green' : 'red'}">${wr}% win rate</span>
-                    <span style="color:#8a99b0">(exp ${exp}%)</span>
+                    <span class="${wr >= 50 ? 'green' : 'red'}">${wr}% win rate</span>
                 </div>`;
             }
             
             let symbolName = symbol === 'bitcoin' ? 'Bitcoin' : (symbol === 'ethereum' ? 'Ethereum' : 'Solana');
+            let dataPointCount = candles.length;
             
             resultsDiv.innerHTML = `
                 <div style="text-align: center; margin-bottom: 15px;">
-                    <strong>${symbolName}</strong> | ${days} days | ${candles.length} candles
+                    <strong>${symbolName}</strong> | ${days} days | ${dataPointCount} REAL candles
                 </div>
                 <div>
                     <div class="stat"><div class="value">${trades.length}</div><div>Trades</div></div>
-                    <div class="stat"><div class="value ${winRate >= 55 ? 'green' : 'red'}">${winRate}%</div><div>Win Rate</div></div>
+                    <div class="stat"><div class="value ${winRate >= 50 ? 'green' : 'red'}">${winRate}%</div><div>Win Rate</div></div>
                     <div class="stat"><div class="value ${totalReturn >= 0 ? 'green' : 'red'}">${totalReturn}%</div><div>Return</div></div>
                     <div class="stat"><div class="value">$${currentBalance.toFixed(0)}</div><div>Balance</div></div>
                 </div>
@@ -324,12 +222,15 @@
                 ${gradeHtml || '<div style="padding: 15px; text-align: center;">No trades generated</div>'}
                 <hr>
                 <div style="font-size: 11px; color: #8a99b0;">
-                    Data: REAL from CoinGecko | Risk: 1% | RR: 1:2 | Strategy: Full (BOS, FVG, OB, Sweep, Retracement)
+                    ✅ Data source: <strong>CoinGecko (REAL historical prices)</strong><br>
+                    Strategy: BOS + Support/Resistance | Risk: 1% | RR: 1:2<br>
+                    Period: Last ${days} days | Starting balance: $${startingBalance}
                 </div>
+                ${trades.length === 0 ? '<div style="margin-top: 12px; padding: 12px; background: #ff446622; border-radius: 8px; text-align: center;">No trades found. Try different symbol or days.</div>' : ''}
             `;
             
         } catch(err) {
-            resultsDiv.innerHTML = `<div class="loader" style="color: #ff4466;">❌ Error: ${err.message}<br><br>Try refreshing or choose a different symbol.</div>`;
+            resultsDiv.innerHTML = `<div class="loader" style="color: #ff4466;">❌ Error: ${err.message}<br><br>CoinGecko works best with BTC, ETH, SOL. Try refreshing.</div>`;
         }
     }
 </script>
